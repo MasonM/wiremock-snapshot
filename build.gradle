@@ -1,0 +1,23 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.7
+group = 'com.github.masonm.wiremock'
+version = '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.6.0'
+    compile 'org.apache.commons:commons-lang3:3.5'
+    compile 'com.google.guava:guava:18.0'
+}
