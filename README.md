@@ -1,8 +1,7 @@
 # Overview
 
-wiremock-snapshot is an admin extension that adds a new endpoint, `/_admin/snapshot`, for creating
-stub mappings from recorded requests. It's an alternative to the
-[http://wiremock.org/docs/record-playback/|Record and Playback] feature that doesn't require
+wiremock-snapshot is an admin extension for [Wiremock](http://wiremock.org) that adds a new endpoint, `/_admin/snapshot`, for creating stub mappings from recorded requests. It's an alternative to the
+[Record and Playback](http://wiremock.org/docs/record-playback/) feature that doesn't require
 restarting the server, and provides more customization options.
 
 # Building
