@@ -1,0 +1,3 @@
+[submodule "wiremock"]
+	path = wiremock
+	url = https://github.com/tomakehurst/wiremock.git

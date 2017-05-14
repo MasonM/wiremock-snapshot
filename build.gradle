@@ -31,8 +31,9 @@ test {
 
 
 dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     compile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.6.0'
-    compile 'org.apache.commons:commons-lang3:3.5'
-    compile 'com.google.guava:guava:18.0'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+    compile group: 'com.google.guava', name: 'guava', version: '18.0'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
 }
