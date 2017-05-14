@@ -2,8 +2,6 @@ package com.github.masonm.wiremock;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 public class SnapshotDefinition {
     private SnapshotFilters filters;
@@ -32,13 +30,5 @@ public class SnapshotDefinition {
 
     public RequestFields getCaptureFields() { return captureFields; }
 
-    public String renderStubMapping(StubMapping stubMapping) {
-        if (outputFormat != null && outputFormat.equals("full")) {
-            return Json.write(stubMapping);
-        } else {
-            return stubMapping.getUuid().toString();
-        }
-
-    }
-
+    public String getOutputFormat() { return outputFormat; }
 }

@@ -26,7 +26,9 @@ public class SnapshotTask implements AdminTask {
             serveEvents = serveEvents.filter(snapshotDefinition.getFilters());
         }
 
-        FluentIterable<StubMapping> stubMappings = serveEvents.transform(new SnapshotStubMappingTransformer(snapshotDefinition));
+        FluentIterable<StubMapping> stubMappings = serveEvents.transform(
+                new SnapshotStubMappingTransformer(snapshotDefinition)
+        );
         if (snapshotDefinition.getSortFields() != null) {
             stubMappings = from(stubMappings.toSortedSet(snapshotDefinition.getSortFields()));
         }
@@ -34,7 +36,7 @@ public class SnapshotTask implements AdminTask {
         ArrayList<String> output = new ArrayList<>(stubMappings.size());
         for (StubMapping stubMapping : stubMappings) {
             admin.addStubMapping(stubMapping);
-            output.add(snapshotDefinition.renderStubMapping(stubMapping));
+            output.add(renderStubMapping(snapshotDefinition.getOutputFormat(), stubMapping));
         }
 
         return responseDefinition()
@@ -42,5 +44,13 @@ public class SnapshotTask implements AdminTask {
                 .withHeader("Content-Type", "application/json")
                 .withBody(Json.write(output))
                 .build();
+    }
+
+    private String renderStubMapping(String outputFormat, StubMapping stubMapping) {
+        if (outputFormat != null && outputFormat.equals("full")) {
+            return Json.write(stubMapping);
+        } else {
+            return stubMapping.getUuid().toString();
+        }
     }
 }

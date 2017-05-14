@@ -3,7 +3,7 @@ apply plugin: 'idea'
 
 sourceCompatibility = 1.7
 group = 'com.github.masonm.wiremock'
-version = '0.1'
+version = '0.1a'
 
 repositories {
     mavenCentral()
@@ -19,6 +19,16 @@ task fatJar (type: Jar) {
     }
     with jar
 }
+
+test {
+    maxParallelForks = 3
+
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
+}
+
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'

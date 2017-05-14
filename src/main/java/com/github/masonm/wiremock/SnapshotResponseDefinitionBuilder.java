@@ -19,28 +19,26 @@ public class SnapshotResponseDefinitionBuilder {
     }
 
     public ResponseDefinition build() {
-        byte[] body = bodyDecompressedIfRequired(response);
-
         ResponseDefinitionBuilder responseDefinitionBuilder = responseDefinition()
                 .withStatus(response.getStatus())
-                .withBody(body);
+                .withBody(bodyDecompressedIfRequired());
 
         if (response.getHeaders() != null) {
-            responseDefinitionBuilder.withHeaders(withoutContentEncodingAndContentLength(response.getHeaders()));
+            responseDefinitionBuilder.withHeaders(withoutContentEncodingAndContentLength());
         }
 
         return responseDefinitionBuilder.build();
     }
 
-    private HttpHeaders withoutContentEncodingAndContentLength(HttpHeaders httpHeaders) {
-        return new HttpHeaders(filter(httpHeaders.all(), new Predicate<HttpHeader>() {
+    private HttpHeaders withoutContentEncodingAndContentLength() {
+        return new HttpHeaders(filter(response.getHeaders().all(), new Predicate<HttpHeader>() {
             public boolean apply(HttpHeader header) {
                 return !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length");
             }
         }));
     }
 
-    private byte[] bodyDecompressedIfRequired(LoggedResponse response) {
+    private byte[] bodyDecompressedIfRequired() {
         if (response.getBody() == null) {
             return null;
         }
