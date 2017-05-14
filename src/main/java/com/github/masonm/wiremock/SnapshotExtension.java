@@ -17,7 +17,6 @@ public class SnapshotExtension implements AdminApiExtension {
     @Override
     public void contributeAdminApiRoutes(Router router) {
         router.add(POST, "/snapshot", SnapshotTask.class);
-        //router.add(POST, "/snapshot/persist", SnapshotTask.class);
     }
 
     public static void main(String... args) {

@@ -6,7 +6,7 @@ restarting the server, and provides more customization options.
 
 # Building
 
-Run `gradle jar` to build the JAR without dependencies or `gradle farJar` to build a standalone JAR.
+Run `gradle jar` to build the JAR without dependencies or `gradle fatJar` to build a standalone JAR.
 These will be placed in `build/libs/`.
 
 # Running

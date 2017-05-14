@@ -3,11 +3,7 @@ package com.github.masonm.wiremock;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 public class SnapshotDefinition {
     private SnapshotFilters filters;
@@ -34,6 +30,8 @@ public class SnapshotDefinition {
 
     public RequestFields getSortFields() { return sortFields; }
 
+    public RequestFields getCaptureFields() { return captureFields; }
+
     public String renderStubMapping(StubMapping stubMapping) {
         if (outputFormat != null && outputFormat.equals("full")) {
             return Json.write(stubMapping);
@@ -43,12 +41,4 @@ public class SnapshotDefinition {
 
     }
 
-    public RequestPatternBuilder createRequestPatternBuilderFrom(LoggedRequest request) {
-        if (this.captureFields != null) {
-            return this.captureFields.createRequestPatternBuilderFrom(request);
-        } else {
-            // Default: only capture method and URL
-            return new RequestPatternBuilder(request.getMethod(), urlEqualTo(request.getUrl()));
-        }
-    }
 }
