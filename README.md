@@ -4,7 +4,7 @@ wiremock-snapshot is an admin extension for [WireMock](http://wiremock.org) that
 [Record and Playback](http://wiremock.org/docs/record-playback/) feature that doesn't require
 restarting the server, and provides more customization options.
 
-WARNING: This is alpha-quality and not ready for production use yet.
+WARNING: This is currently alpha. Backwards compatibility is not guaranteed.
 
 # Building
 
@@ -15,13 +15,13 @@ These will be placed in `build/libs/`.
 
 Standalone server:
 ```
-java -jar build/libs/wiremock-snapshot-standalone-0.1.jar
+java -jar build/libs/wiremock-snapshot-standalone-0.1a.jar
 ```
 
 With WireMock standalone JAR:
 ```
 java \
-        -cp wiremock-standalone.jar:build/libs/wiremock-snapshot-0.1.jar \
+        -cp wiremock-standalone.jar:build/libs/wiremock-snapshot-0.1a.jar \
         com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
         --extensions="com.github.masonm.wiremock.SnapshotExtension"
 ```
@@ -56,6 +56,6 @@ The `__admin/snapshot` endpoint accepts POST requests with following optional pa
 
 # Todo
 
-* Intelligent de-duplication (maybe using [structured prediction](https://en.wikipedia.org/wiki/Structured_prediction))
+* Intelligent de-duplication/consolidation of stub mappings
 * Add ability to extract response body to file (will give feature-parity with "Record and Playback")
 * Add more output formats (e.g. "zip")

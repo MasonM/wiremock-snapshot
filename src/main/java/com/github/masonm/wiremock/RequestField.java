@@ -3,11 +3,13 @@ package com.github.masonm.wiremock;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
-public class RequestField {
+import java.util.Comparator;
+
+public class RequestField  implements Comparator<RequestPattern> {
     private final String field;
 
     @JsonCreator
@@ -21,15 +23,20 @@ public class RequestField {
         } else if (field.equals("method")) {
             return one.getMethod().equals(two.getMethod()) ? 0 : 1;
         } else {
+            if (one.getHeaders() == null) {
+                return -1;
+            } else if (two.getHeaders() == null) {
+                return 1;
+            }
+
             MultiValuePattern headerOne = one.getHeaders().get(field);
             MultiValuePattern headerTwo = two.getHeaders().get(field);
             if (headerOne == null) {
                 return -1;
-            }
-            if (headerTwo == null) {
+            } else if (headerTwo == null) {
                 return 1;
             }
-            return headerOne.getExpected().compareToIgnoreCase(two.getExpected());
+            return headerOne.getExpected().compareToIgnoreCase(headerTwo.getExpected());
         }
     }
 
@@ -39,7 +46,7 @@ public class RequestField {
 
     public boolean isHeader() { return field != "url" && field != "method"; }
 
-    public String requestHeaderValue(LoggedRequest request) {
+    public String headerValue(Request request) {
         return request.header(field).firstValue();
     }
 

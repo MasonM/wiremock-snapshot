@@ -2,10 +2,10 @@ package com.github.masonm.wiremock;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -33,7 +33,7 @@ public class RequestFields implements Comparator<StubMapping> {
         return result;
     }
 
-    public RequestPatternBuilder createRequestPatternBuilderFrom(LoggedRequest request) {
+    public RequestPatternBuilder createRequestPatternBuilderFrom(Request request) {
         RequestPatternBuilder builder = new RequestPatternBuilder(
             fields.contains("method") ? request.getMethod() : RequestMethod.ANY,
             fields.contains("url") ? urlEqualTo(request.getUrl()) : anyUrl()
@@ -44,7 +44,7 @@ public class RequestFields implements Comparator<StubMapping> {
                 continue;
             }
             if (request.containsHeader(field.value())) {
-                builder = builder.withHeader(field.value(), equalTo(field.requestHeaderValue(request)));
+                builder = builder.withHeader(field.value(), equalTo(field.headerValue(request)));
             }
         }
 
