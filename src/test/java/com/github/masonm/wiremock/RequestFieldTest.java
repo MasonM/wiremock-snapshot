@@ -2,8 +2,8 @@ package com.github.masonm.wiremock;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import org.junit.Test;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
+import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
