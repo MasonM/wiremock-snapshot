@@ -14,24 +14,24 @@ public class SnapshotStubMappingTransformer implements Function<ServeEvent, Stub
     private SnapshotResponseDefinitionTransformer responseTransformer;
 
     public SnapshotStubMappingTransformer(
-            SnapshotDefinition snapshotDefinition,
             IdGenerator idGenerator,
             SnapshotResponseDefinitionTransformer responseTransformer,
-            SnapshotRequestPatternTransformer requestTransformer) {
+            SnapshotRequestPatternTransformer requestTransformer,
+            RequestFields captureFields) {
         this.idGenerator = idGenerator;
         this.responseTransformer = responseTransformer;
         this.requestTransformer = requestTransformer;
-        if (snapshotDefinition.getCaptureFields() != null) {
-            this.requestTransformer.setCaptureFields(snapshotDefinition.getCaptureFields());
+        if (captureFields != null) {
+            this.requestTransformer.setCaptureFields(captureFields);
         }
     }
 
-    public SnapshotStubMappingTransformer(SnapshotDefinition snapshotDefinition) {
+    public SnapshotStubMappingTransformer(RequestFields captureFields) {
         this(
-                snapshotDefinition,
                 new VeryShortIdGenerator(),
                 new SnapshotResponseDefinitionTransformer(),
-                new SnapshotRequestPatternTransformer()
+                new SnapshotRequestPatternTransformer(),
+                captureFields
         );
     }
 
