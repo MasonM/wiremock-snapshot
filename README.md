@@ -57,5 +57,7 @@ The `__admin/snapshot` endpoint accepts POST requests with following optional pa
 # Todo
 
 * Intelligent de-duplication/consolidation of stub mappings
+* Allow filtering by proxied requests
+* More field options for `captureFields` and `sortFields`
 * Add ability to extract response body to file (will give feature-parity with "Record and Playback")
 * Add more output formats (e.g. "zip")
