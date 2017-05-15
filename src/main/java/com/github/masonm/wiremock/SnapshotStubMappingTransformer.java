@@ -9,25 +9,39 @@ import com.google.common.base.Function;
 import java.util.UUID;
 
 public class SnapshotStubMappingTransformer implements Function<ServeEvent, StubMapping> {
-    private SnapshotDefinition snapshotDefinition;
     private IdGenerator idGenerator;
+    private SnapshotRequestPatternTransformer requestTransformer;
+    private SnapshotResponseDefinitionTransformer responseTransformer;
+
+    public SnapshotStubMappingTransformer(
+            SnapshotDefinition snapshotDefinition,
+            IdGenerator idGenerator,
+            SnapshotResponseDefinitionTransformer responseTransformer,
+            SnapshotRequestPatternTransformer requestTransformer) {
+        this.idGenerator = idGenerator;
+        this.responseTransformer = responseTransformer;
+        this.requestTransformer = requestTransformer;
+        if (snapshotDefinition.getCaptureFields() != null) {
+            this.requestTransformer.setCaptureFields(snapshotDefinition.getCaptureFields());
+        }
+    }
 
     public SnapshotStubMappingTransformer(SnapshotDefinition snapshotDefinition) {
-        this.idGenerator = new VeryShortIdGenerator();
-        this.snapshotDefinition = snapshotDefinition;
+        this(
+                snapshotDefinition,
+                new VeryShortIdGenerator(),
+                new SnapshotResponseDefinitionTransformer(),
+                new SnapshotRequestPatternTransformer()
+        );
     }
 
     @Override
     public StubMapping apply(ServeEvent event) {
-        SnapshotRequestPatternBuilder requestBuilder = new SnapshotRequestPatternBuilder(event.getRequest());
-        if (snapshotDefinition.getCaptureFields() != null) {
-            requestBuilder.setCaptureFields(snapshotDefinition.getCaptureFields());
-        }
-
-        SnapshotResponseDefinitionBuilder responseBuilder = new SnapshotResponseDefinitionBuilder(event.getResponse());
-
         String stubId = idGenerator.generate();
-        StubMapping stubMapping = new StubMapping(requestBuilder.build(), responseBuilder.build());
+        StubMapping stubMapping = new StubMapping(
+                requestTransformer.apply(event.getRequest()),
+                responseTransformer.apply(event.getResponse())
+        );
         stubMapping.setUuid(UUID.nameUUIDFromBytes(stubId.getBytes()));
 
         return stubMapping;

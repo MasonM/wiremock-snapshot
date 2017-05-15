@@ -5,22 +5,19 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.Function;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
-public class SnapshotRequestPatternBuilder {
-    private LoggedRequest request;
+public class SnapshotRequestPatternTransformer  implements Function<LoggedRequest, RequestPattern> {
     private RequestFields captureFields;
-
-    public SnapshotRequestPatternBuilder(LoggedRequest request) {
-        this.request = request;
-    }
 
     public void setCaptureFields(RequestFields captureFields) {
         this.captureFields = captureFields;
     }
 
-    public RequestPattern build() {
+    @Override
+    public RequestPattern apply(LoggedRequest request) {
         RequestPatternBuilder builder;
         if (this.captureFields != null) {
             builder = this.captureFields.createRequestPatternBuilderFrom(request);
@@ -31,13 +28,13 @@ public class SnapshotRequestPatternBuilder {
 
         String body = request.getBodyAsString();
         if (!body.isEmpty()) {
-            builder.withRequestBody(valuePatternForContentType());
+            builder.withRequestBody(valuePatternForContentType(request));
         }
 
         return builder.build();
     }
 
-    private StringValuePattern valuePatternForContentType() {
+    private StringValuePattern valuePatternForContentType(LoggedRequest request) {
         ContentTypeHeader contentType = request.getHeaders().getContentTypeHeader();
         if (contentType.containsValue("json")) {
             return equalToJson(request.getBodyAsString(), true, true);

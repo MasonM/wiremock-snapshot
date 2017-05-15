@@ -21,7 +21,8 @@ public class SnapshotTask implements AdminTask {
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
         final SnapshotDefinition snapshotDefinition = Json.read(request.getBodyAsString(), SnapshotDefinition.class);
 
-        FluentIterable<ServeEvent> serveEvents = from(admin.getServeEvents().getRequests());
+        FluentIterable<ServeEvent> serveEvents = from(admin.getServeEvents().getRequests())
+                .filter(ServeEvent.NOT_MATCHED); // get only unmatched requests
         if (snapshotDefinition.getFilters() != null) {
             serveEvents = serveEvents.filter(snapshotDefinition.getFilters());
         }
