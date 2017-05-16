@@ -1,6 +1,9 @@
 package com.github.masonm.wiremock;
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.jmock.Expectations;
@@ -11,8 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.junit.Assert.*;
 
 public class RequestFieldsTest {
@@ -33,6 +37,45 @@ public class RequestFieldsTest {
         assertEquals(1, compareWithTwoStubbedFields(0, 1));
         assertEquals(-1, compareWithTwoStubbedFields(-1, 1));
         assertEquals(-1, compareWithTwoStubbedFields(0, -1));
+    }
+
+    @Test
+    public void createRequestPatternBuilderFromWithNoFields() {
+        RequestFields fields = new RequestFields(new ArrayList<RequestField>());
+        assertEquals(RequestPatternBuilder.allRequests().build(), fields.createRequestPatternBuilderFrom(mockRequest()).build());
+    }
+
+    @Test
+    public void createRequestPatternBuilderFromWithUrlAndMethod() {
+        RequestFields fields = new RequestFields(Arrays.asList(
+            new RequestField("url"),
+            new RequestField("method")
+        ));
+        Request request = mockRequest()
+                .method(RequestMethod.GET)
+                .url("/foo");
+        RequestPatternBuilder expected = new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo"));
+        assertEquals(expected.build(), fields.createRequestPatternBuilderFrom(request).build());
+    }
+
+    @Test
+    public void createRequestPatternBuilderFromWithHeaders() {
+        RequestFields fields = new RequestFields(Arrays.asList(
+                new RequestField("method"),
+                new RequestField("Accept"),
+                new RequestField("X-Bar")
+        ));
+
+        Request request = mockRequest()
+                .method(RequestMethod.GET)
+                .header("Accept", "foo")
+                .header("X-Bar", "Baz");
+
+        RequestPatternBuilder expected = newRequestPattern(RequestMethod.GET, anyUrl())
+                .withHeader("Accept", equalTo("foo"))
+                .withHeader("X-Bar", equalTo("Baz"));
+
+        assertEquals(expected.build(), fields.createRequestPatternBuilderFrom(request).build());
     }
 
     private int compareWithTwoStubbedFields(final int firstCompareResult, final int secondCompareResult) {

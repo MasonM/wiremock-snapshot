@@ -46,7 +46,9 @@ public class SnapshotTask implements AdminTask {
     }
 
     private FluentIterable<ServeEvent> filterEvents(List<ServeEvent> serveEventList, SnapshotFilters filters) {
-        FluentIterable<ServeEvent> serveEvents = from(serveEventList).filter(ServeEvent.NOT_MATCHED); // get only unmatched requests
+        FluentIterable<ServeEvent> serveEvents = from(serveEventList)
+                .filter(ServeEvent.NOT_MATCHED); // get only unmatched requests
+        // @todo filter by LoggedRequest.isBrowserProxyRequest()
         if (filters != null) {
             serveEvents = serveEvents.filter(filters);
         }

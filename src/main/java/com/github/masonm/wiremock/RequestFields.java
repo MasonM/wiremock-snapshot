@@ -35,8 +35,8 @@ public class RequestFields implements Comparator<StubMapping> {
 
     public RequestPatternBuilder createRequestPatternBuilderFrom(Request request) {
         RequestPatternBuilder builder = new RequestPatternBuilder(
-            fields.contains("method") ? request.getMethod() : RequestMethod.ANY,
-            fields.contains("url") ? urlEqualTo(request.getUrl()) : anyUrl()
+            fields.contains(new RequestField("method")) ? request.getMethod() : RequestMethod.ANY,
+            fields.contains(new RequestField("url")) ? urlEqualTo(request.getUrl()) : anyUrl()
         );
 
         for (RequestField field : fields) {

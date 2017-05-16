@@ -44,18 +44,21 @@ public class RequestField  implements Comparator<RequestPattern> {
     @JsonValue
     public String value() { return field; }
 
-    public boolean isHeader() { return field != "url" && field != "method"; }
+    public boolean isHeader() { return !field.equals("url") && !field.equals("method"); }
 
     public String headerValue(Request request) {
         return request.header(field).firstValue();
     }
 
     @Override
+    public int hashCode() {
+        return field.hashCode();
+    }
+
+    @Override
     public boolean equals(Object o) {
-        if (o == null) return false;
         if (this == o) return true;
-        if (o instanceof CharSequence) return this.field.equals(o);
-        if (o.getClass() != getClass()) return false;
+        if (o == null || o.getClass() != getClass()) return false;
         RequestField that = (RequestField) o;
         return this.field.equals(that.field);
     }

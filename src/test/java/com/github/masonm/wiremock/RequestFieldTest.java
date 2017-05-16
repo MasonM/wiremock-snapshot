@@ -49,11 +49,6 @@ public class RequestFieldTest {
     }
 
     @Test
-    public void equalsReturnsTrueForSameString() {
-        assertTrue(aRequestField("url").equals("url"));
-    }
-
-    @Test
     public void equalsReturnsFalseForDifferentField() {
         RequestField one = aRequestField("url");
         RequestField two = aRequestField("method");

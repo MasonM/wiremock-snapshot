@@ -5,7 +5,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Predicate;
 
 public class SnapshotFilters implements Predicate<ServeEvent> {
-    private RequestPattern filters;
+    private final RequestPattern filters;
 
     public SnapshotFilters(RequestPattern filters) {
         this.filters = filters;

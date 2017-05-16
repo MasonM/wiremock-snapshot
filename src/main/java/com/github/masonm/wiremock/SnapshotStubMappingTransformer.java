@@ -9,9 +9,9 @@ import com.google.common.base.Function;
 import java.util.UUID;
 
 public class SnapshotStubMappingTransformer implements Function<ServeEvent, StubMapping> {
-    private IdGenerator idGenerator;
-    private SnapshotRequestPatternTransformer requestTransformer;
-    private SnapshotResponseDefinitionTransformer responseTransformer;
+    private final IdGenerator idGenerator;
+    private final SnapshotRequestPatternTransformer requestTransformer;
+    private final SnapshotResponseDefinitionTransformer responseTransformer;
 
     public SnapshotStubMappingTransformer(
             IdGenerator idGenerator,
@@ -22,7 +22,7 @@ public class SnapshotStubMappingTransformer implements Function<ServeEvent, Stub
         this.responseTransformer = responseTransformer;
         this.requestTransformer = requestTransformer;
         if (captureFields != null) {
-            this.requestTransformer.setCaptureFields(captureFields);
+            this.requestTransformer.withCaptureFields(captureFields);
         }
     }
 

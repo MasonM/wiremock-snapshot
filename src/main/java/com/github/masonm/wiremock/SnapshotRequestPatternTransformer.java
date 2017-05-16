@@ -12,8 +12,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 public class SnapshotRequestPatternTransformer  implements Function<LoggedRequest, RequestPattern> {
     private RequestFields captureFields;
 
-    public void setCaptureFields(RequestFields captureFields) {
+    public SnapshotRequestPatternTransformer withCaptureFields(RequestFields captureFields) {
         this.captureFields = captureFields;
+        return this;
     }
 
     @Override
@@ -36,10 +37,12 @@ public class SnapshotRequestPatternTransformer  implements Function<LoggedReques
 
     private StringValuePattern valuePatternForContentType(LoggedRequest request) {
         ContentTypeHeader contentType = request.getHeaders().getContentTypeHeader();
-        if (contentType.containsValue("json")) {
-            return equalToJson(request.getBodyAsString(), true, true);
-        } else if (contentType.containsValue("xml")) {
-            return equalToXml(request.getBodyAsString());
+        if (contentType.mimeTypePart() != null) {
+            if (contentType.mimeTypePart().contains("json")) {
+                return equalToJson(request.getBodyAsString(), true, true);
+            } else if (contentType.mimeTypePart().contains("xml")) {
+                return equalToXml(request.getBodyAsString());
+            }
         }
 
         return equalTo(request.getBodyAsString());
