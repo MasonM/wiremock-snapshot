@@ -16,8 +16,11 @@ public class SnapshotResponseDefinitionTransformer implements Function<LoggedRes
     @Override
     public ResponseDefinition apply(LoggedResponse response) {
         ResponseDefinitionBuilder responseDefinitionBuilder = responseDefinition()
-                .withStatus(response.getStatus())
-                .withBody(bodyDecompressedIfRequired(response));
+                .withStatus(response.getStatus());
+
+        if (response.getBody() != null && !response.getBody().isEmpty()) {
+            responseDefinitionBuilder.withBody(response.getBody());
+        }
 
         if (response.getHeaders() != null) {
             responseDefinitionBuilder.withHeaders(withoutContentEncodingAndContentLength(response));
@@ -32,18 +35,5 @@ public class SnapshotResponseDefinitionTransformer implements Function<LoggedRes
                 return !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length");
             }
         }));
-    }
-
-    private byte[] bodyDecompressedIfRequired(LoggedResponse response) {
-        if (response.getBody() == null) {
-            return null;
-        }
-
-        HttpHeaders headers = response.getHeaders();
-        if (headers != null && headers.getHeader("Content-Encoding").containsValue("gzip")) {
-            return Gzip.unGzip(response.getBody().getBytes());
-        }
-
-        return response.getBody().getBytes();
     }
 }

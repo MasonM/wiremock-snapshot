@@ -8,12 +8,10 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Function;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.jmock.Mockery;
 import org.junit.Test;
-import sun.rmi.runtime.Log;
 
 import java.util.UUID;
 
@@ -49,15 +47,14 @@ public class SnapshotStubMappingTransformerTest {
         StubMapping expected = new StubMapping(requestPattern, responseDefinition);
         expected.setUuid(UUID.nameUUIDFromBytes("101".getBytes()));
 
-        ServeEvent serveEvent = new ServeEvent(
+        assertEquals(expected, stubMappingTransformer.apply(new ServeEvent(
                 null,
                 LoggedRequest.createFrom(aRequest(context).build()),
                 null,
                 null,
                 LoggedResponse.from(Response.notConfigured()),
                 false
-        );
-        assertEquals(expected, stubMappingTransformer.apply(serveEvent));
+        )));
     }
 
     private IdGenerator fixedIdGenerator(final String id) {

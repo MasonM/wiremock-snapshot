@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
 import java.util.ArrayList;
@@ -47,8 +48,13 @@ public class SnapshotTask implements AdminTask {
 
     private FluentIterable<ServeEvent> filterEvents(List<ServeEvent> serveEventList, SnapshotFilters filters) {
         FluentIterable<ServeEvent> serveEvents = from(serveEventList)
-                .filter(ServeEvent.NOT_MATCHED); // get only unmatched requests
-        // @todo filter by LoggedRequest.isBrowserProxyRequest()
+                // only get unmatched or proxied requests
+                .filter(new Predicate<ServeEvent>() {
+                    @Override
+                    public boolean apply(ServeEvent serveEvent) {
+                        return serveEvent.isNoExactMatch() || serveEvent.getResponseDefinition().isProxyResponse();
+                    }
+                });
         if (filters != null) {
             serveEvents = serveEvents.filter(filters);
         }

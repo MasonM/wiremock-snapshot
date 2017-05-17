@@ -2,7 +2,6 @@ package com.github.masonm.wiremock;
 
 import com.github.tomakehurst.wiremock.matching.MockRequest;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import org.junit.Test;
 
