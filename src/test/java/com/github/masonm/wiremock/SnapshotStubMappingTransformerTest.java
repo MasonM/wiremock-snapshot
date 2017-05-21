@@ -1,6 +1,5 @@
 package com.github.masonm.wiremock;
 
-import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -46,16 +45,16 @@ public class SnapshotStubMappingTransformerTest {
             captureFields
         );
 
-        StubMapping actual = stubMappingTransformer.apply(new ServeEvent(
+        StubMapping expected = new StubMapping(requestPattern, responseDefinition);
+        expected.setId(UUID.fromString("241ee4bc-98df-3069-abfc-9abe37650411"));
+
+        assertEquals(expected, stubMappingTransformer.apply(new ServeEvent(
             null,
             LoggedRequest.createFrom(aRequest(context).build()),
             null,
             null,
             LoggedResponse.from(Response.notConfigured()),
             false
-        ));
-        StubMapping expected = new StubMapping(requestPattern, responseDefinition);
-        expected.setId(actual.getId());
-        assertEquals(expected, actual);
+        )));
     }
 }

@@ -3,6 +3,7 @@ package com.github.masonm.wiremock;
 import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
 import com.github.tomakehurst.wiremock.admin.model.PaginatedResult;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -52,14 +53,13 @@ public class SnapshotTaskTest {
 
         JsonVerifiable check = JsonAssertion.assertThat(execute("{}"));
         check.hasSize(1);
-        check.contains(UUID.nameUUIDFromBytes("101".getBytes()));
+        check.arrayField().isEqualTo("8f1ad9be-e187-3055-b0ca-a381184fc511");
     }
 
     private String execute(String requestBody) {
         Request request = mockRequest().body(requestBody);
 
         SnapshotTask snapshotTask = new SnapshotTask();
-        snapshotTask.setIdGenerator(fixedIdGenerator("101"));
         ResponseDefinition responseDefinition = snapshotTask.execute(mockAdmin, request, PathParams.empty());
 
         assertEquals(HTTP_OK, responseDefinition.getStatus());
@@ -76,6 +76,7 @@ public class SnapshotTaskTest {
         );
         context.checking(new Expectations() {{
             allowing(mockAdmin).getServeEvents(); will(returnValue(results));
+            allowing(mockAdmin).getStubMapping(with(any(UUID.class))); will(returnValue(new SingleStubMappingResult(null)));
             allowing(mockAdmin).addStubMapping(with(any(StubMapping.class)));
         }});
     }

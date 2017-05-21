@@ -35,7 +35,7 @@ new WireMockServer(wireMockConfig()
 
 # Usage
 
-The `__admin/snapshot` endpoint accepts POST requests with following optional parameters:
+The `__admin/snapshot` endpoint can be accessed via POST and creates stub mappings from the requests and responses in the request journal. The following options are available:
 * `"filters"` - Array of request patterns to filter by.
   * Possible values: Identical to those accepted by the `__admin/requests/find`. See [Request Matching](http://wiremock.org/docs/request-matching/) for details.
   * Default: no filtering.
