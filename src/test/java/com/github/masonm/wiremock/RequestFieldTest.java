@@ -13,10 +13,6 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.*;
 
 public class RequestFieldTest {
-    public static RequestField aRequestField(String field) {
-        return new RequestField(field);
-    }
-
     @Test
     public void isHeaderReturnsTrueForHeader() {
         assertTrue(aRequestField("Accept").isHeader());
@@ -133,5 +129,9 @@ public class RequestFieldTest {
         assertEquals(0, field.compare(one, one));
         assertEquals(0, field.compare(one, two));
         assertEquals(0, field.compare(two, one));
+    }
+
+    private static RequestField aRequestField(String field) {
+        return new RequestField(field);
     }
 }

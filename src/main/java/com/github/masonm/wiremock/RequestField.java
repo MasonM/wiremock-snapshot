@@ -18,25 +18,26 @@ public class RequestField  implements Comparator<RequestPattern> {
     }
 
     public int compare(RequestPattern one, RequestPattern two) {
-        if (field.equals("url")) {
-            return one.getUrl().compareToIgnoreCase(two.getUrl());
-        } else if (field.equals("method")) {
-            return one.getMethod().equals(two.getMethod()) ? 0 : 1;
-        } else {
-            if (one.getHeaders() == null) {
-                return -1;
-            } else if (two.getHeaders() == null) {
-                return 1;
-            }
+        switch (field) {
+            case "url":
+                return one.getUrl().compareToIgnoreCase(two.getUrl());
+            case "method":
+                return one.getMethod().equals(two.getMethod()) ? 0 : 1;
+            default:
+                if (one.getHeaders() == null) {
+                    return -1;
+                } else if (two.getHeaders() == null) {
+                    return 1;
+                }
 
-            MultiValuePattern headerOne = one.getHeaders().get(field);
-            MultiValuePattern headerTwo = two.getHeaders().get(field);
-            if (headerOne == null) {
-                return -1;
-            } else if (headerTwo == null) {
-                return 1;
-            }
-            return headerOne.getExpected().compareToIgnoreCase(headerTwo.getExpected());
+                MultiValuePattern headerOne = one.getHeaders().get(field);
+                MultiValuePattern headerTwo = two.getHeaders().get(field);
+                if (headerOne == null) {
+                    return -1;
+                } else if (headerTwo == null) {
+                    return 1;
+                }
+                return headerOne.getExpected().compareToIgnoreCase(headerTwo.getExpected());
         }
     }
 

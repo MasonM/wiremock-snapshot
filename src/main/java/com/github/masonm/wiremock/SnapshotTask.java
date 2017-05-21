@@ -17,12 +17,23 @@ import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.j
 import static com.google.common.collect.FluentIterable.from;
 import static java.net.HttpURLConnection.HTTP_OK;
 
+
 public class SnapshotTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
         final SnapshotDefinition snapshotDefinition = Json.read(request.getBodyAsString(), SnapshotDefinition.class);
+        return execute(admin, snapshotDefinition);
+    }
 
-        FluentIterable<StubMapping> stubMappings = generateStubMappings(
+    /**
+     * Central method, mainly glue code
+     *
+     * @param admin Admin instance
+     * @param snapshotDefinition User input parameters/options
+     * @return ResponseDefinition
+     */
+    private ResponseDefinition execute(Admin admin, SnapshotDefinition snapshotDefinition) {
+        final FluentIterable<StubMapping> stubMappings = generateStubMappings(
             admin.getServeEvents().getServeEvents(),
             snapshotDefinition
         );
@@ -40,6 +51,12 @@ public class SnapshotTask implements AdminTask {
         return jsonResponse(response, HTTP_OK);
     }
 
+    /**
+     * Transforms a list of ServeEvents to StubMappings according to the options in SnapshotDefinition
+     * @param serveEventList List of ServeEvents from the request journal
+     * @param snapshotDefinition User input parameters/options
+     * @return List of StubMappings
+     */
     private FluentIterable<StubMapping> generateStubMappings(Iterable<ServeEvent> serveEventList, SnapshotDefinition snapshotDefinition) {
         FluentIterable<ServeEvent> serveEvents = from(serveEventList).filter(onlyProxied());
 

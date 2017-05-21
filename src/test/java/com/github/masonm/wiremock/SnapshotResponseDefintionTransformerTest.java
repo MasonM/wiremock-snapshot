@@ -1,11 +1,9 @@
 package com.github.masonm.wiremock;
 
-import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static org.junit.Assert.assertEquals;
 
 public class SnapshotResponseDefintionTransformerTest {

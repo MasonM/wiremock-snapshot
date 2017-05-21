@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SnapshotDefinition {
-    private SnapshotFilters filters;
-    private RequestFields sortFields;
-    private RequestFields captureFields;
-    private String outputFormat;
+    private final SnapshotFilters filters;
+    private final RequestFields sortFields;
+    private final RequestFields captureFields;
+    private final String outputFormat;
 
     @JsonCreator
     public SnapshotDefinition(@JsonProperty("filters") SnapshotFilters filters ,

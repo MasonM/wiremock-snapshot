@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class RequestFields implements Comparator<StubMapping> {
-    private List<RequestField> fields;
+    private final List<RequestField> fields;
 
     public RequestFields(List<RequestField> fields) {
         this.fields = fields;

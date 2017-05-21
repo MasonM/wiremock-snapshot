@@ -10,6 +10,9 @@ import com.google.common.primitives.Bytes;
 
 import java.util.UUID;
 
+/**
+ * Maps ServeEvents to StubMappings using SnapshotReuqestPatternTransformer and SnapshotResponseDefinitionTransformer
+ */
 public class SnapshotStubMappingTransformer implements Function<ServeEvent, StubMapping> {
     private final SnapshotRequestPatternTransformer requestTransformer;
     private final SnapshotResponseDefinitionTransformer responseTransformer;
@@ -32,8 +35,10 @@ public class SnapshotStubMappingTransformer implements Function<ServeEvent, Stub
 
     @Override
     public StubMapping apply(ServeEvent event) {
-        ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
         RequestPattern requestPattern = requestTransformer.apply(event.getRequest());
+        ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
+        // create (hopefully) unique ID for the stub mapping using JSON representation of the RequestPattern and
+        // ResponseDefinition, which will be used in SnapshotTask to de-dupe StubMappings
         byte[] hashCode = Bytes.concat(Json.toByteArray(requestPattern), Json.toByteArray(responseDefinition));
 
         StubMapping stubMapping = new StubMapping(requestPattern, responseDefinition);
