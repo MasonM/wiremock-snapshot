@@ -5,14 +5,11 @@ import com.github.tomakehurst.wiremock.admin.model.PaginatedResult;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.toomuchcoding.jsonassert.JsonAssertion;
-import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Before;
@@ -24,7 +21,9 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class SnapshotTaskTest {
@@ -38,22 +37,29 @@ public class SnapshotTaskTest {
     }
 
     @Test
-    public void returnsEmptyArrayWithNoServeEventsOrOptions() {
+    public void returnsEmptyArrayWithNoServeEvents() {
         setServeEvents();
         assertEquals("[ ]", execute("{}"));
     }
 
     @Test
-    public void returnsOneMappingWithOneServeEvent() {
-        setServeEvents(serveEvent(
-            mockRequest().url("/foo").method(RequestMethod.GET),
-            response().body("hello").build(),
-            true
-        ));
+    public void returnsEmptyArrayWithUnproxiedServeEvent() {
+        setServeEvents(serveEvent(mockRequest(), response(), false));
+        assertEquals("[ ]", execute("{}"));
+    }
 
-        JsonVerifiable check = JsonAssertion.assertThat(execute("{}"));
-        check.hasSize(1);
-        check.arrayField().isEqualTo("8f1ad9be-e187-3055-b0ca-a381184fc511");
+    @Test
+    public void returnsEmptyArrayForExistingStubMapping() {
+        setServeEvents(serveEvent(mockRequest(), response(), true));
+        setGetStubMappingMock(true);
+        assertEquals("[ ]", execute("{}"));
+    }
+
+    @Test
+    public void returnsOneMappingWithOneServeEvent() {
+        setServeEvents(serveEvent(mockRequest(), response(), true));
+        setGetStubMappingMock(false);
+        assertThat(execute("{}"), equalToJson("[\"19652ad8-cad8-3b2d-9846-05e6a790fbfb\"]"));
     }
 
     private String execute(String requestBody) {
@@ -70,18 +76,25 @@ public class SnapshotTaskTest {
 
     private void setServeEvents(ServeEvent... serveEvents) {
         final GetServeEventsResult results = new GetServeEventsResult(
-                Arrays.asList(serveEvents),
-                new PaginatedResult.Meta(0), // ignored parameter
-                false
+            Arrays.asList(serveEvents),
+            new PaginatedResult.Meta(0), // ignored parameter
+            false
         );
         context.checking(new Expectations() {{
             allowing(mockAdmin).getServeEvents(); will(returnValue(results));
-            allowing(mockAdmin).getStubMapping(with(any(UUID.class))); will(returnValue(new SingleStubMappingResult(null)));
             allowing(mockAdmin).addStubMapping(with(any(StubMapping.class)));
         }});
     }
 
-    private static ServeEvent serveEvent(Request request, Response response, boolean wasProxied) {
+    private void setGetStubMappingMock(boolean isPresent) {
+        final StubMapping stubMapping = isPresent ? StubMapping.NOT_CONFIGURED : null;
+        context.checking(new Expectations() {{
+            allowing(mockAdmin).getStubMapping(with(any(UUID.class)));
+            will(returnValue(new SingleStubMappingResult(stubMapping)));
+        }});
+    }
+
+    private static ServeEvent serveEvent(Request request, Response.Builder responseBuilder, boolean wasProxied) {
         ResponseDefinitionBuilder responseDefinition = responseDefinition();
         if (wasProxied) {
             responseDefinition.proxiedFrom("/foo");
@@ -91,16 +104,8 @@ public class SnapshotTaskTest {
             LoggedRequest.createFrom(request),
             null,
             responseDefinition.build(),
-            LoggedResponse.from(response),
+            LoggedResponse.from(responseBuilder.build()),
             false
         );
-    }
-
-    private IdGenerator fixedIdGenerator(final String id) {
-        return new IdGenerator() {
-            public String generate() {
-                return id;
-            }
-        };
     }
 }

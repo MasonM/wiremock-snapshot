@@ -22,8 +22,26 @@ public class SnapshotTask implements AdminTask {
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
         final SnapshotDefinition snapshotDefinition = Json.read(request.getBodyAsString(), SnapshotDefinition.class);
 
-        FluentIterable<ServeEvent> serveEvents = from(admin.getServeEvents().getServeEvents());
-        serveEvents = serveEvents.filter(onlyProxied());
+        FluentIterable<StubMapping> stubMappings = generateStubMappings(
+            admin.getServeEvents().getServeEvents(),
+            snapshotDefinition
+        );
+
+        ArrayList<Object> response = new ArrayList<>(stubMappings.size());
+        String format = snapshotDefinition.getOutputFormat();
+
+        for (StubMapping stubMapping : stubMappings) {
+            if (!admin.getStubMapping(stubMapping.getId()).isPresent()) { // check for duplicates
+                admin.addStubMapping(stubMapping);
+                response.add((format != null && format.equals("full")) ? stubMapping : stubMapping.getId());
+            }
+        }
+
+        return jsonResponse(response, HTTP_OK);
+    }
+
+    private FluentIterable<StubMapping> generateStubMappings(Iterable<ServeEvent> serveEventList, SnapshotDefinition snapshotDefinition) {
+        FluentIterable<ServeEvent> serveEvents = from(serveEventList).filter(onlyProxied());
 
         if (snapshotDefinition.getFilters() != null) {
             serveEvents = serveEvents.filter(snapshotDefinition.getFilters());
@@ -37,17 +55,7 @@ public class SnapshotTask implements AdminTask {
             stubMappings = from(stubMappings.toSortedSet(snapshotDefinition.getSortFields()));
         }
 
-        ArrayList<Object> response = new ArrayList<>(stubMappings.size());
-        String format = snapshotDefinition.getOutputFormat();
-
-        for (StubMapping stubMapping : stubMappings) {
-            if (!admin.getStubMapping(stubMapping.getId()).isPresent()) { // check for duplicates
-                admin.addStubMapping(stubMapping);
-                response.add((format != null && format.equals("full")) ? stubMapping : stubMapping.getId());
-            }
-        }
-
-        return jsonResponse(response, HTTP_OK);
+        return stubMappings;
     }
 
     private Predicate<ServeEvent> onlyProxied() {
