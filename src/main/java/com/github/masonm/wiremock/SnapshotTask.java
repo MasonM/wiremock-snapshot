@@ -8,13 +8,13 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
 import static com.google.common.collect.FluentIterable.from;
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -23,49 +23,46 @@ public class SnapshotTask implements AdminTask {
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
         final SnapshotDefinition snapshotDefinition = Json.read(request.getBodyAsString(), SnapshotDefinition.class);
 
-        List<ServeEvent> serveEventList = admin.getServeEvents().getRequests();
-        FluentIterable<ServeEvent> serveEvents = filterEvents(serveEventList, snapshotDefinition.getFilters());
+        List<ServeEvent> serveEventList = admin.getServeEvents().getServeEvents();
+        FluentIterable<ServeEvent> serveEvents = from(serveEventList).filter(onlyProxied());
+
+        if (snapshotDefinition.getFilters() != null) {
+            serveEvents = serveEvents.filter(snapshotDefinition.getFilters());
+        }
 
         FluentIterable<StubMapping> stubMappings = serveEvents.transform(
-                new SnapshotStubMappingTransformer(snapshotDefinition.getCaptureFields())
+            new SnapshotStubMappingTransformer(snapshotDefinition.getCaptureFields())
         );
         if (snapshotDefinition.getSortFields() != null) {
             stubMappings = from(stubMappings.toSortedSet(snapshotDefinition.getSortFields()));
         }
 
-        ArrayList<String> output = new ArrayList<>(stubMappings.size());
         for (StubMapping stubMapping : stubMappings) {
             admin.addStubMapping(stubMapping);
-            output.add(renderStubMapping(snapshotDefinition.getOutputFormat(), stubMapping));
         }
 
-        return responseDefinition()
-                .withStatus(HTTP_OK)
-                .withHeader("Content-Type", "application/json")
-                .withBody(Json.write(output))
-                .build();
+        String format = snapshotDefinition.getOutputFormat();
+        return jsonResponse(
+            (format != null && format.equals("full")) ? stubMappings : stubMappings.transform(toUuid()),
+            HTTP_OK
+        );
     }
 
-    private FluentIterable<ServeEvent> filterEvents(List<ServeEvent> serveEventList, SnapshotFilters filters) {
-        FluentIterable<ServeEvent> serveEvents = from(serveEventList)
-                // only get unmatched or proxied requests
-                .filter(new Predicate<ServeEvent>() {
-                    @Override
-                    public boolean apply(ServeEvent serveEvent) {
-                        return serveEvent.isNoExactMatch() || serveEvent.getResponseDefinition().isProxyResponse();
-                    }
-                });
-        if (filters != null) {
-            serveEvents = serveEvents.filter(filters);
-        }
-        return serveEvents;
+    private Predicate<ServeEvent> onlyProxied() {
+        return new Predicate<ServeEvent>() {
+            @Override
+            public boolean apply(ServeEvent serveEvent) {
+                return serveEvent.getResponseDefinition().isProxyResponse();
+            }
+        };
     }
 
-    private String renderStubMapping(String outputFormat, StubMapping stubMapping) {
-        if (outputFormat != null && outputFormat.equals("full")) {
-            return Json.write(stubMapping);
-        } else {
-            return stubMapping.getUuid().toString();
-        }
+    private Function<StubMapping, String> toUuid() {
+        return new Function<StubMapping, String>() {
+            @Override
+            public String apply(StubMapping stubMapping) {
+                return stubMapping.getUuid().toString();
+            }
+        };
     }
 }
