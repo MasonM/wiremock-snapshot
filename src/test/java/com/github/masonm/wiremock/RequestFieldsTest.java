@@ -28,7 +28,7 @@ public class RequestFieldsTest {
 
     @Test
     public void compareEqualStubMappings() {
-       assertEquals(0, compareWithTwoStubbedFields(0, 0));
+        assertEquals(0, compareWithTwoStubbedFields(0, 0));
     }
 
     @Test
@@ -41,39 +41,32 @@ public class RequestFieldsTest {
 
     @Test
     public void createRequestPatternBuilderFromWithNoFields() {
-        RequestFields fields = new RequestFields(new ArrayList<RequestField>());
+        RequestFields fields = new RequestFields();
         assertEquals(RequestPatternBuilder.allRequests().build(), fields.createRequestPatternBuilderFrom(mockRequest()).build());
     }
 
     @Test
     public void createRequestPatternBuilderFromWithUrlAndMethod() {
-        RequestFields fields = new RequestFields(Arrays.asList(
-            new RequestField("url"),
-            new RequestField("method")
-        ));
+        RequestFields fields = new RequestFields("url", "method");
         Request request = mockRequest()
-                .method(RequestMethod.GET)
-                .url("/foo");
+            .method(RequestMethod.GET)
+            .url("/foo");
         RequestPatternBuilder expected = new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo"));
         assertEquals(expected.build(), fields.createRequestPatternBuilderFrom(request).build());
     }
 
     @Test
     public void createRequestPatternBuilderFromWithHeaders() {
-        RequestFields fields = new RequestFields(Arrays.asList(
-                new RequestField("method"),
-                new RequestField("Accept"),
-                new RequestField("X-Bar")
-        ));
+        RequestFields fields = new RequestFields("method", "Accept", "X-Bar");
 
         Request request = mockRequest()
-                .method(RequestMethod.GET)
-                .header("Accept", "foo")
-                .header("X-Bar", "Baz");
+            .method(RequestMethod.GET)
+            .header("Accept", "foo")
+            .header("X-Bar", "Baz");
 
         RequestPatternBuilder expected = newRequestPattern(RequestMethod.GET, anyUrl())
-                .withHeader("Accept", equalTo("foo"))
-                .withHeader("X-Bar", equalTo("Baz"));
+            .withHeader("Accept", equalTo("foo"))
+            .withHeader("X-Bar", equalTo("Baz"));
 
         assertEquals(expected.build(), fields.createRequestPatternBuilderFrom(request).build());
     }
@@ -86,8 +79,8 @@ public class RequestFieldsTest {
         Mockery context = new Mockery();
         context.setImposteriser(ClassImposteriser.INSTANCE);
         final List<RequestField> fieldsList = Arrays.asList(
-                context.mock(RequestField.class, "first"),
-                context.mock(RequestField.class, "second")
+            context.mock(RequestField.class, "first"),
+            context.mock(RequestField.class, "second")
         );
         context.checking(new Expectations() {{
             allowing(fieldsList.get(0)).compare(stub1.getRequest(), stub2.getRequest());

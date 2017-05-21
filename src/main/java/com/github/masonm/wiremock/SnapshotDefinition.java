@@ -20,10 +20,6 @@ public class SnapshotDefinition {
         this.outputFormat = outputFormat;
     }
 
-    public SnapshotDefinition() {
-        //Concession to Jackson
-    }
-
     public SnapshotFilters getFilters() { return filters; }
 
     public RequestFields getSortFields() { return sortFields; }

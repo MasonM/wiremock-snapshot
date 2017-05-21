@@ -29,19 +29,19 @@ public class SnapshotResponseDefintionTransformerTest {
     @Test
     public void applyWithHeaders() {
         LoggedResponse response = LoggedResponse.from(Response
-                .response()
-                .headers(new HttpHeaders(
-                        HttpHeader.httpHeader("Content-Encoding", "gzip"),
-                        HttpHeader.httpHeader("Content-Length", "10"),
-                        HttpHeader.httpHeader("Accept", "application/json"),
-                        HttpHeader.httpHeader("X-foo", "Bar")
-                ))
-                .build()
+            .response()
+            .headers(new HttpHeaders(
+                HttpHeader.httpHeader("Content-Encoding", "gzip"),
+                HttpHeader.httpHeader("Content-Length", "10"),
+                HttpHeader.httpHeader("Accept", "application/json"),
+                HttpHeader.httpHeader("X-foo", "Bar")
+            ))
+            .build()
         );
         ResponseDefinition expected = responseDefinition()
-                .withHeader("Accept", "application/json")
-                .withHeader("X-foo", "Bar")
-                .build();
+            .withHeader("Accept", "application/json")
+            .withHeader("X-foo", "Bar")
+            .build();
         assertEquals(expected, aTransformer().apply(response));
     }
 }

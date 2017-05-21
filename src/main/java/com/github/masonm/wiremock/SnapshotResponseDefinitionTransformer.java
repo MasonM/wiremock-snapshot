@@ -15,7 +15,7 @@ public class SnapshotResponseDefinitionTransformer implements Function<LoggedRes
     @Override
     public ResponseDefinition apply(LoggedResponse response) {
         ResponseDefinitionBuilder responseDefinitionBuilder = responseDefinition()
-                .withStatus(response.getStatus());
+            .withStatus(response.getStatus());
 
         if (response.getBody() != null && !response.getBody().isEmpty()) {
             responseDefinitionBuilder.withBody(response.getBody());

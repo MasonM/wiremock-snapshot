@@ -31,20 +31,20 @@ public class SnapshotRequestPatternTransformerTest {
 
     @Test
     public void applyWithCaptureFieldsAndPlainTextBody() {
-       RequestFields captureFields = new RequestFields(Arrays.asList(
-               new RequestField("url"),
-               new RequestField("Accept")
-       ));
+        RequestFields captureFields = new RequestFields(Arrays.asList(
+            new RequestField("url"),
+            new RequestField("Accept")
+        ));
         LoggedRequest request = LoggedRequest.createFrom(aRequest(new Mockery())
-                .withBodyAsBase64(encodeBase64("HELLO".getBytes()))
-                .withMethod(RequestMethod.GET)
-                .withUrl("/foo")
-                .withHeader("Accept", "foo")
-                .withHeader("User-Agent", "bar")
-                .build());
+            .withBodyAsBase64(encodeBase64("HELLO".getBytes()))
+            .withMethod(RequestMethod.GET)
+            .withUrl("/foo")
+            .withHeader("Accept", "foo")
+            .withHeader("User-Agent", "bar")
+            .build());
         RequestPatternBuilder expected = newRequestPattern(RequestMethod.ANY, urlEqualTo("/foo"))
-                .withRequestBody(equalTo("HELLO"))
-                .withHeader("Accept", equalTo("foo"));
+            .withRequestBody(equalTo("HELLO"))
+            .withHeader("Accept", equalTo("foo"));
 
         assertEquals(expected.build(), aTransformer().withCaptureFields(captureFields).apply(request));
     }
@@ -52,28 +52,28 @@ public class SnapshotRequestPatternTransformerTest {
     @Test
     public void applyWithEmptyCaptureFieldsAndJsonBody() {
         LoggedRequest request = LoggedRequest.createFrom(aRequest(new Mockery())
-                .withHeader("Content-Type", "application/json")
-                .withBodyAsBase64(encodeBase64("['hello']".getBytes()))
-                .build());
+            .withHeader("Content-Type", "application/json")
+            .withBodyAsBase64(encodeBase64("['hello']".getBytes()))
+            .build());
         RequestPatternBuilder expected = allRequests()
-                .withRequestBody(equalToJson("['hello']", true, true));
+            .withRequestBody(equalToJson("['hello']", true, true));
 
         assertEquals(expected.build(), aTransformer()
-                .withCaptureFields(new RequestFields(new ArrayList<RequestField>()))
-                .apply(request));
+            .withCaptureFields(new RequestFields(new ArrayList<RequestField>()))
+            .apply(request));
     }
 
     @Test
     public void applyWithEmptyCaptureFieldsAndXmlBody() {
         LoggedRequest request = LoggedRequest.createFrom(aRequest(new Mockery())
-                .withHeader("Content-Type", "application/xml")
-                .withBodyAsBase64(encodeBase64("<foo/>".getBytes()))
-                .build());
+            .withHeader("Content-Type", "application/xml")
+            .withBodyAsBase64(encodeBase64("<foo/>".getBytes()))
+            .build());
         RequestPatternBuilder expected = allRequests()
-                .withRequestBody(equalToXml("<foo/>"));
+            .withRequestBody(equalToXml("<foo/>"));
 
         assertEquals(expected.build(), aTransformer()
-                .withCaptureFields(new RequestFields(new ArrayList<RequestField>()))
-                .apply(request));
+            .withCaptureFields(new RequestFields(new ArrayList<RequestField>()))
+            .apply(request));
     }
 }

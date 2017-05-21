@@ -41,6 +41,6 @@ public class SnapshotFiltersTest {
     }
 
     private ServeEvent toServeEvent(MockRequest request) {
-       return ServeEvent.forUnmatchedRequest(request.asLoggedRequest());
+        return ServeEvent.forUnmatchedRequest(request.asLoggedRequest());
     }
 }

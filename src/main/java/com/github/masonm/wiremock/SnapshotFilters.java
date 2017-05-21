@@ -14,7 +14,7 @@ public class SnapshotFilters implements Predicate<ServeEvent> {
     @Override
     public boolean apply(ServeEvent serveEvent) {
         return filters
-                .match(serveEvent.getRequest())
-                .isExactMatch();
+            .match(serveEvent.getRequest())
+            .isExactMatch();
     }
 }

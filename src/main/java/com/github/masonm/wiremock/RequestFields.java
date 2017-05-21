@@ -11,15 +11,23 @@ import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class RequestFields implements Comparator<StubMapping> {
-    private final List<RequestField> fields;
+    private List<RequestField> fields;
+
+    public RequestFields(List<RequestField> fields) {
+        this.fields = fields;
+    }
 
     @JsonCreator
-    public RequestFields(@JsonProperty("fields") List<RequestField> fields) {
-        this.fields = fields;
+    public RequestFields(@JsonProperty("fields") String ...fields) {
+        this.fields = new ArrayList<>(fields.length);
+        for (String field : fields) {
+            this.fields.add(new RequestField(field));
+        }
     }
 
     public int compare(StubMapping one, StubMapping two) {

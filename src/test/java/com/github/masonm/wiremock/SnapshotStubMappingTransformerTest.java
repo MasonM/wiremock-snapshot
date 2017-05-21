@@ -28,6 +28,7 @@ public class SnapshotStubMappingTransformerTest {
         @SuppressWarnings("unchecked")
         final SnapshotRequestPatternTransformer requestTransformer = context.mock(SnapshotRequestPatternTransformer.class);
         final RequestPattern requestPattern = newRequestPattern().build();
+        final RequestFields captureFields = new RequestFields("foo");
 
         @SuppressWarnings("unchecked")
         final SnapshotResponseDefinitionTransformer responseTransformer = context.mock(SnapshotResponseDefinitionTransformer.class);
@@ -35,33 +36,26 @@ public class SnapshotStubMappingTransformerTest {
 
         context.checking(new Expectations() {{
             allowing(requestTransformer).apply(with(any(LoggedRequest.class))); will(returnValue(requestPattern));
+            allowing(requestTransformer).withCaptureFields(with(captureFields));
             allowing(responseTransformer).apply(with(any(LoggedResponse.class))); will(returnValue(responseDefinition));
         }});
 
         SnapshotStubMappingTransformer stubMappingTransformer = new SnapshotStubMappingTransformer(
-                fixedIdGenerator("101"),
-                requestTransformer,
-                responseTransformer
+            requestTransformer,
+            responseTransformer,
+            captureFields
         );
 
+        StubMapping actual = stubMappingTransformer.apply(new ServeEvent(
+            null,
+            LoggedRequest.createFrom(aRequest(context).build()),
+            null,
+            null,
+            LoggedResponse.from(Response.notConfigured()),
+            false
+        ));
         StubMapping expected = new StubMapping(requestPattern, responseDefinition);
-        expected.setUuid(UUID.nameUUIDFromBytes("101".getBytes()));
-
-        assertEquals(expected, stubMappingTransformer.apply(new ServeEvent(
-                null,
-                LoggedRequest.createFrom(aRequest(context).build()),
-                null,
-                null,
-                LoggedResponse.from(Response.notConfigured()),
-                false
-        )));
-    }
-
-    private IdGenerator fixedIdGenerator(final String id) {
-        return new IdGenerator() {
-            public String generate() {
-                return id;
-            }
-        };
+        expected.setId(actual.getId());
+        assertEquals(expected, actual);
     }
 }
