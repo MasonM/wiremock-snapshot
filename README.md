@@ -1,5 +1,7 @@
 # Overview
 
+[![Build Status](https://travis-ci.org/MasonM/wiremock-snapshot.svg?branch=master)](https://travis-ci.org/MasonM/wiremock-snapshot)
+
 wiremock-snapshot is an admin extension for [WireMock](http://wiremock.org) that adds a new endpoint, `/_admin/snapshot`, for creating stub mappings from recorded requests. It's an alternative to the
 [Record and Playback](http://wiremock.org/docs/record-playback/) feature that doesn't require
 restarting the server, and provides more customization options.
