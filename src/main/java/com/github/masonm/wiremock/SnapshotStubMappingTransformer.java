@@ -11,7 +11,7 @@ import com.google.common.primitives.Bytes;
 import java.util.UUID;
 
 /**
- * Maps ServeEvents to StubMappings using SnapshotReuqestPatternTransformer and SnapshotResponseDefinitionTransformer
+ * Transforms ServeEvents to StubMappings using SnapshotReuqestPatternTransformer and SnapshotResponseDefinitionTransformer
  */
 public class SnapshotStubMappingTransformer implements Function<ServeEvent, StubMapping> {
     private final SnapshotRequestPatternTransformer requestTransformer;

@@ -7,6 +7,9 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Predicate;
 
+/**
+ * Specifies filters to use for determining which requests to generate StubMappings for.
+ */
 public class SnapshotFilters implements Predicate<ServeEvent> {
     @JsonUnwrapped
     private final RequestPattern filters;

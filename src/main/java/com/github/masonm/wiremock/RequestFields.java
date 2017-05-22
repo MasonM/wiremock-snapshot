@@ -15,9 +15,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Represents a collection of request fields to be used for sorting StubMappings and determining what to include in
+ * the RequestPattern for a stub mapping (i.e. whitelisting fields)
+ */
 public class RequestFields implements Comparator<StubMapping> {
     private final List<RequestField> fields;
 
+    // For the tests
     public RequestFields(List<RequestField> fields) {
         this.fields = fields;
     }

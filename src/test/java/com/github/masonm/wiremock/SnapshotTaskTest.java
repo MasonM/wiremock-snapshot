@@ -76,8 +76,45 @@ public class SnapshotTaskTest {
         );
     }
 
+    private static final String FILTERED_SNAPSHOT_REQUEST =
+        "{                                                 \n" +
+        "    \"outputFormat\": \"full\",                   \n" +
+        "    \"filters\": {                                \n" +
+        "        \"urlPattern\": \"/foo.*\",               \n" +
+        "        \"headers\": {                            \n" +
+        "            \"A\": { \"equalTo\": \"B\" }         \n"+
+        "        }                                         \n" +
+        "    }                                             \n" +
+        "}                                                   ";
+
+    private static final String FILTERED_SNAPSHOT_RESPONSE =
+        "[                                                           \n" +
+        "    {                                                       \n" +
+        "        \"id\" : \"dad048a8-d4ce-3302-bdef-ff2f4c4620ce\",  \n" +
+        "        \"request\" : {                                     \n" +
+        "            \"url\" : \"/foo/bar\",                         \n" +
+        "            \"method\" : \"ANY\"                            \n" +
+        "        },                                                  \n" +
+        "        \"response\" : {                                    \n" +
+        "            \"status\" : 200                                \n" +
+        "        },                                                  \n" +
+        "        \"uuid\" : \"dad048a8-d4ce-3302-bdef-ff2f4c4620ce\" \n" +
+        "    },                                                      \n" +
+        "    {                                                       \n" +
+        "        \"id\" : \"749570ee-baf9-39cb-a91f-6f4b66f9508a\",  \n" +
+        "        \"request\" : {                                     \n" +
+        "            \"url\" : \"/foo/bar/baz\",                     \n" +
+        "            \"method\" : \"ANY\"                            \n" +
+        "        },                                                  \n" +
+        "        \"response\" : {                                    \n" +
+        "            \"status\" : 200                                \n" +
+        "        },                                                  \n" +
+        "        \"uuid\" : \"749570ee-baf9-39cb-a91f-6f4b66f9508a\" \n" +
+        "    }                                                       \n" +
+        " ]                                                            ";
+
     @Test
-    public void returnsFiltersRequestsWithFullOutputFormat() {
+    public void returnsFilteredRequestsWithFullOutputFormat() {
         setServeEvents(
             // Matches both
             serveEvent(mockRequest().url("/foo/bar").header("A","B"), response(), true),
@@ -91,41 +128,88 @@ public class SnapshotTaskTest {
             serveEvent(mockRequest().url("/foo/bar/baz").header("A","B"), response(), true)
         );
         setReturnForGetStubMapping(null);
+        assertThat(execute(FILTERED_SNAPSHOT_REQUEST), equalToJson(FILTERED_SNAPSHOT_RESPONSE));
+    }
+
+    private static final String CAPTURE_FIELDS_SNAPSHOT_RESPONSE =
+            "[                                                           \n" +
+            "    {                                                       \n" +
+            "        \"id\" : \"a29b49ea-a0fc-3fa6-8367-ef3be2d9bfd9\",  \n" +
+            "        \"request\" : {                                     \n" +
+            "            \"method\" : \"POST\",                          \n" +
+            "            \"headers\": {                                  \n" +
+            "                \"Accept\": {                               \n" +
+            "                    \"equalTo\": \"B\"                      \n" +
+            "                }                                           \n" +
+            "            }                                               \n" +
+            "        },                                                  \n" +
+            "        \"response\" : {                                    \n" +
+            "            \"status\" : 200                                \n" +
+            "        },                                                  \n" +
+            "        \"uuid\" : \"a29b49ea-a0fc-3fa6-8367-ef3be2d9bfd9\" \n" +
+            "    }                                                       \n" +
+            "]                                                             ";
+
+    @Test
+    public void returnsStubMappingWithCaptureFields() {
+        setServeEvents(
+            serveEvent(
+                mockRequest()
+                    .url("/foo/bar")
+                    .method(RequestMethod.POST)
+                    .header("Accept","B"),
+                response(),
+                true
+            )
+        );
+        setReturnForGetStubMapping(null);
         assertThat(
             execute("{ " +
-                "\"outputFormat\": \"full\","+
-                "\"filters\": " +
-                "{" +
-                    "\"urlPattern\": \"/foo.*\", " +
-                    "\"headers\": {" +
-                        "\"A\": { \"equalTo\": \"B\" } "+
-                    "}" +
-                "}" +
+                "\"outputFormat\": \"full\", " +
+                "\"captureFields\": [ \"method\", \"Accept\" ] " +
             "}"),
-            equalToJson("[ " +
-                "{" +
-                    "\"id\" : \"dad048a8-d4ce-3302-bdef-ff2f4c4620ce\"," +
-                    "\"request\" : {" +
-                        "\"url\" : \"/foo/bar\"," +
-                        "\"method\" : \"ANY\"" +
-                    "}," +
-                    "\"response\" : {" +
-                        "\"status\" : 200" +
-                    "}," +
-                    "\"uuid\" : \"dad048a8-d4ce-3302-bdef-ff2f4c4620ce\"" +
-                "}, {"+
-                    "\"id\" : \"749570ee-baf9-39cb-a91f-6f4b66f9508a\","+
-                    "\"request\" : {"+
-                        "\"url\" : \"/foo/bar/baz\","+
-                        "\"method\" : \"ANY\""+
-                    "},"+
-                    "\"response\" : {"+
-                        "\"status\" : 200"+
-                    "},"+
-                    "\"uuid\" : \"749570ee-baf9-39cb-a91f-6f4b66f9508a\""+
-                "}" +
-            "]")
+            equalToJson(CAPTURE_FIELDS_SNAPSHOT_RESPONSE)
         );
+    }
+
+    private static final String SORTED_SNAPSHOT_REQUEST =
+        "{                                  \n" +
+        "    \"outputFormat\": \"full\",    \n" +
+        "    \"sortFields\": [ \"url\" ],   \n" +
+        "    \"captureFields\": [ \"url\" ] \n" +
+        "}                                  \n";
+
+    private static final String SORTED_SNAPSHOT_RESPONSE =
+            "[                                                                \n" +
+            "    {                                                            \n" +
+            "        \"id\" : \"0bb32d87-039c-3a23-a611-11977b18f835\",       \n" +
+            "        \"request\" : { \"method\": \"ANY\", \"url\" : \"/a\" }, \n" +
+            "        \"response\" : { \"status\" : 200 },                     \n" +
+            "        \"uuid\" : \"0bb32d87-039c-3a23-a611-11977b18f835\"      \n" +
+            "    },                                                           \n" +
+            "    {                                                            \n" +
+            "        \"id\" : \"ad6afa05-dc87-3925-9578-cb8a78e2e15e\",       \n" +
+            "        \"request\" : { \"method\": \"ANY\", \"url\" : \"/b\" }, \n" +
+            "        \"response\" : { \"status\" : 200 },                     \n" +
+            "        \"uuid\" : \"ad6afa05-dc87-3925-9578-cb8a78e2e15e\"      \n" +
+            "    },                                                           \n" +
+            "    {                                                            \n" +
+            "        \"id\" : \"d17d08cf-96da-37f5-b40b-71420c7f2940\",       \n" +
+            "        \"request\" : { \"method\": \"ANY\", \"url\" : \"/z\" }, \n" +
+            "        \"response\" : { \"status\" : 200 },                     \n" +
+            "        \"uuid\" : \"d17d08cf-96da-37f5-b40b-71420c7f2940\"      \n" +
+            "    }                                                            \n" +
+            "]                                                             ";
+
+    @Test
+    public void returnsSortedStubMappings() {
+        setServeEvents(
+            serveEvent(mockRequest().url("/b"), response(), true ),
+            serveEvent(mockRequest().url("/a"), response(), true ),
+            serveEvent(mockRequest().url("/z"), response(), true )
+        );
+        setReturnForGetStubMapping(null);
+        assertThat(execute(SORTED_SNAPSHOT_REQUEST), equalToJson(SORTED_SNAPSHOT_RESPONSE));
     }
 
     private String execute(String requestBody) {

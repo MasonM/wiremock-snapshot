@@ -9,6 +9,10 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 
 import java.util.Comparator;
 
+/**
+ * Represents a field in a request that we can use for sorting or whitelisting.
+ * Currently, the field is limited to "url", "method", or a request header.
+ */
 public class RequestField  implements Comparator<RequestPattern> {
     private final String field;
 
@@ -17,13 +21,16 @@ public class RequestField  implements Comparator<RequestPattern> {
         this.field = field;
     }
 
+    /**
+     * Compares two RequestPatterns in terms of the field.
+     */
     public int compare(RequestPattern one, RequestPattern two) {
         switch (field) {
             case "url":
                 return one.getUrl().compareToIgnoreCase(two.getUrl());
             case "method":
                 return one.getMethod().equals(two.getMethod()) ? 0 : 1;
-            default:
+            default: // assume field is a header
                 if (one.getHeaders() == null) {
                     return -1;
                 } else if (two.getHeaders() == null) {

@@ -9,6 +9,9 @@ import com.google.common.base.Function;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
+/**
+ * Transforms a LoggedRequest to a RequestPattern, which will be used to construct a StubMapping
+ */
 public class SnapshotRequestPatternTransformer  implements Function<LoggedRequest, RequestPattern> {
     private RequestFields captureFields;
 
@@ -35,6 +38,10 @@ public class SnapshotRequestPatternTransformer  implements Function<LoggedReques
         return builder.build();
     }
 
+    /**
+     * If request body was JSON or XML, use "equalToJson" or "equalToXml" (respectively) in the RequestPattern so it's
+     * easier to read. Otherwise, just use "equalTo"
+     */
     private StringValuePattern valuePatternForContentType(LoggedRequest request) {
         ContentTypeHeader contentType = request.getHeaders().getContentTypeHeader();
         if (contentType.mimeTypePart() != null) {

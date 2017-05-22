@@ -11,6 +11,9 @@ import com.google.common.base.Predicate;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.google.common.collect.Iterables.filter;
 
+/**
+ * Transforms a LoggedResponse into a ResponseDefinition, which will be used to construct a StubMapping
+ */
 public class SnapshotResponseDefinitionTransformer implements Function<LoggedResponse, ResponseDefinition> {
     @Override
     public ResponseDefinition apply(LoggedResponse response) {

@@ -48,7 +48,7 @@ public class SnapshotTask implements AdminTask {
             }
         }
 
-        return jsonResponse(response, HTTP_OK);
+        return jsonResponse(response.toArray(), HTTP_OK);
     }
 
     /**
