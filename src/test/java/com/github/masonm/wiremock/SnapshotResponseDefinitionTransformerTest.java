@@ -6,7 +6,7 @@ import org.junit.Test;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static org.junit.Assert.assertEquals;
 
-public class SnapshotResponseDefintionTransformerTest {
+public class SnapshotResponseDefinitionTransformerTest {
     private SnapshotResponseDefinitionTransformer aTransformer() {
         return new SnapshotResponseDefinitionTransformer();
     }

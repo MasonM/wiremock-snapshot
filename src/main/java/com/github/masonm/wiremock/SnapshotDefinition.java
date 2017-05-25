@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Encapsulates options for generating and outputting StubMappings
  */
-public class SnapshotDefinition {
+class SnapshotDefinition {
     // Whitelist requests to generate StubMappings for
     private SnapshotFilters filters;
     // How to sort the StubMappings (mainly for output purposes)
