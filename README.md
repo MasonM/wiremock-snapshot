@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/MasonM/wiremock-snapshot.svg?branch=master)](https://travis-ci.org/MasonM/wiremock-snapshot)
 
-wiremock-snapshot is an admin extension for [WireMock](http://wiremock.org) that adds a new endpoint, `/_admin/snapshot`, for creating stub mappings from recorded requests. It's an alternative to the
+wiremock-snapshot is an admin extension for [WireMock](http://wiremock.org) that adds a new endpoint, `/__admin/snapshot`, for creating stub mappings from recorded requests. It's an alternative to the
 [Record and Playback](http://wiremock.org/docs/record-playback/) feature that doesn't require
 restarting the server, and provides more customization options.
 
@@ -38,7 +38,7 @@ new WireMockServer(wireMockConfig()
 
 ## Creating proxy for recording
 
-If you're using this as a replacement for the [Record and Playback](http://wiremock.org/docs/record-playback/) feature, you'll need to manually create the proxy mapping that's normally done automatically with the `--proxy-all` option. This can be done with by calling the `_admin/snapshots/` endpoint with the following stub mapping:
+If you're using this as a replacement for the [Record and Playback](http://wiremock.org/docs/record-playback/) feature, you'll need to manually create the proxy mapping that's normally done automatically with the `--proxy-all` option. This can be done with by calling `/__admin/mappings` with the following stub mapping:
 
 ```sh
 curl -d '{
@@ -48,13 +48,13 @@ curl -d '{
 }' http://localhost:8080/__admin/mappings
 ```
 
-Replace `http://www.example.com` with the proxy base URL, and `http://localhost:8080` with the Wiremock hostname.
+Replace `http://www.example.com` with the proxy base URL and `http://localhost:8080` with the Wiremock base URL.
 
 ## Calling the Snapshot API
 
-The `__admin/snapshot` endpoint can be accessed via POST and creates stub mappings from the requests and responses in the request journal. It accepts the following options:
+The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappings from the requests and responses in the request journal. It accepts the following options:
 * `"filters"` - Array of request patterns to use for determining which requests to create stub mappings for.
-  * Possible values: Identical to those accepted by the `__admin/requests/find`. See [Request Matching](http://wiremock.org/docs/request-matching/) for details.
+  * Possible values: Identical to those accepted by `/__admin/requests/find`. See [Request Matching](http://wiremock.org/docs/request-matching/) for details.
   * Default: no filtering.
 * `"sortFields"` - Array of fields in the request to use for sorting stub mappings, mainly for output.
   * Possible values:  `"url"`, `"method"`, or a header name (e.g. `"Accept"`)
@@ -63,7 +63,7 @@ The `__admin/snapshot` endpoint can be accessed via POST and creates stub mappin
   * Possible values: Same as `"sortFields"`
   * Default: `["url", "method"]`
 * `"outputFormat"` - Determines response body.
-  * Possible values: `"ids"` to return aray of stub mapping IDs, `"full"` to return array of stub mapping objects
+  * Possible values: `"ids"` to return array of stub mapping IDs, `"full"` to return array of stub mapping objects
   * Default: `"ids"`
 
 ## Persisting the mappings
