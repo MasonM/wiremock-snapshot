@@ -75,7 +75,7 @@ Stub mappings are not persisted automatically. Call `/__admin/mappings/save` to 
 # Examples
 
 * Record mappings with defaults: `curl -d '{}' http://localhost:8080/__admin/snapshot`
-* Filter by URL and header values (i.e. only create stub mappings for mathing requests) and ouput array of stub mappings:
+* Filter by URL and header values (i.e. only create stub mappings for matching requests) and ouput array of stub mappings:
 
         curl -d '{
             "outputFormat": "full",
