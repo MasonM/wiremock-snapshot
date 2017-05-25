@@ -34,7 +34,6 @@ new WireMockServer(wireMockConfig()
     .extensions("com.github.masonm.wiremock.SnapshotExtension"))
 ```
 
-
 # Usage
 
 ## Creating proxy for recording
@@ -43,25 +42,23 @@ If you're using this as a replacement for the [Record and Playback](http://wirem
 
 ```sh
 curl -d '{
-    "request": { "urlPattern": ".*" },
     "response": {
         "proxyBaseUrl": "http://www.example.com"
     }
 }' http://localhost:8080/__admin/mappings
 ```
 
-Replacing `http://www.example.com` with the proxy base URL, and `http://localhost:8080` with the Wiremock hostname.
+Replace `http://www.example.com` with the proxy base URL, and `http://localhost:8080` with the Wiremock hostname.
 
 ## Calling the Snapshot API
 
-The `__admin/snapshot` endpoint can be accessed via POST and creates stub mappings from the requests and responses in the request journal. The following options are available:
+The `__admin/snapshot` endpoint can be accessed via POST and creates stub mappings from the requests and responses in the request journal. It accepts the following options:
 * `"filters"` - Array of request patterns to use for determining which requests to create stub mappings for.
   * Possible values: Identical to those accepted by the `__admin/requests/find`. See [Request Matching](http://wiremock.org/docs/request-matching/) for details.
   * Default: no filtering.
 * `"sortFields"` - Array of fields in the request to use for sorting stub mappings, mainly for output.
   * Possible values:  `"url"`, `"method"`, or a header name (e.g. `"Accept"`)
   * Default: no sorting.
-  * Examples: `["url", "Accept-Encoding"]`, `["url"]`, `["url", "method", "Host"]`
 * `"captureFields"` - Array of fields in the request to include in stub mappings. Any duplicate stub mappings will be skipped.
   * Possible values: Same as `"sortFields"`
   * Default: `["url", "method"]`
@@ -99,6 +96,6 @@ Stub mappings are not persisted automatically. Call `/__admin/mappings/save` to 
          }' http://localhost:8080/__admin/snapshot`
 # Todo
 
-* Add ability to extract response body to file (will give feature-parity with "Record and Playback")
+* [Add ability to extract response body to file](https://github.com/MasonM/wiremock-snapshot/issues/1) (will give feature-parity with "Record and Playback")
 * Intelligent de-duplication/consolidation of stub mappings
 * More field options for `captureFields` and `sortFields`?
