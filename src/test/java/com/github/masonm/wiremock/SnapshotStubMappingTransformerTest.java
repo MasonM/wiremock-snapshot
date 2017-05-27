@@ -7,8 +7,6 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.jmock.Expectations;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.jmock.Mockery;
 import org.junit.Test;
 
@@ -21,28 +19,27 @@ import static org.junit.Assert.assertEquals;
 public class SnapshotStubMappingTransformerTest {
     @Test
     public void apply() {
-        Mockery context = new Mockery();
-        context.setImposteriser(ClassImposteriser.INSTANCE);
-
-        @SuppressWarnings("unchecked")
-        final SnapshotRequestPatternTransformer requestTransformer = context.mock(SnapshotRequestPatternTransformer.class);
         final RequestPattern requestPattern = newRequestPattern().build();
-        final RequestFields captureFields = new RequestFields("foo");
-
-        @SuppressWarnings("unchecked")
-        final SnapshotResponseDefinitionTransformer responseTransformer = context.mock(SnapshotResponseDefinitionTransformer.class);
         final ResponseDefinition responseDefinition = ResponseDefinition.ok();
 
-        context.checking(new Expectations() {{
-            allowing(requestTransformer).apply(with(any(LoggedRequest.class))); will(returnValue(requestPattern));
-            allowing(requestTransformer).withCaptureFields(with(captureFields));
-            allowing(responseTransformer).apply(with(any(LoggedResponse.class))); will(returnValue(responseDefinition));
-        }});
+        SnapshotRequestPatternTransformer requestTransformer = new SnapshotRequestPatternTransformer() {
+            @Override
+            public RequestPattern apply(LoggedRequest request) {
+                return requestPattern;
+            }
+        };
+
+        SnapshotResponseDefinitionTransformer responseTransformer = new SnapshotResponseDefinitionTransformer() {
+            @Override
+            public ResponseDefinition apply(LoggedResponse response) {
+                return responseDefinition;
+            }
+        };
 
         SnapshotStubMappingTransformer stubMappingTransformer = new SnapshotStubMappingTransformer(
             requestTransformer,
             responseTransformer,
-            captureFields
+            new RequestFields("foo")
         );
 
         StubMapping expected = new StubMapping(requestPattern, responseDefinition);
@@ -50,7 +47,7 @@ public class SnapshotStubMappingTransformerTest {
 
         assertEquals(expected, stubMappingTransformer.apply(new ServeEvent(
             null,
-            LoggedRequest.createFrom(aRequest(context).build()),
+            LoggedRequest.createFrom(aRequest(new Mockery()).build()),
             null,
             null,
             LoggedResponse.from(Response.notConfigured()),

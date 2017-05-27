@@ -3,16 +3,13 @@ package com.github.masonm.wiremock;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
@@ -76,20 +73,20 @@ public class RequestFieldsTest {
         final StubMapping stub1 = stubBuilder.build();
         final StubMapping stub2 = stubBuilder.build();
 
-        Mockery context = new Mockery();
-        context.setImposteriser(ClassImposteriser.INSTANCE);
-        final List<RequestField> fieldsList = Arrays.asList(
-            context.mock(RequestField.class, "first"),
-            context.mock(RequestField.class, "second")
-        );
-        context.checking(new Expectations() {{
-            allowing(fieldsList.get(0)).compare(stub1.getRequest(), stub2.getRequest());
-            will(returnValue(firstCompareResult));
-            allowing(fieldsList.get(1)).compare(stub1.getRequest(), stub2.getRequest());
-            will(returnValue(secondCompareResult));
-        }});
+        RequestField one = new RequestField("first") {
+            @Override
+            public int compare(RequestPattern one, RequestPattern two) {
+                return firstCompareResult;
+            }
+        };
+        RequestField two = new RequestField("second") {
+            @Override
+            public int compare(RequestPattern one, RequestPattern two) {
+                return secondCompareResult;
+            }
+        };
 
-        RequestFields fields = new RequestFields(fieldsList);
+        RequestFields fields = new RequestFields(Arrays.asList(one, two));
         return fields.compare(stub1, stub2);
     }
 }
