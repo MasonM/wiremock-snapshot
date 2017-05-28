@@ -21,25 +21,25 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class SnapshotTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        final SnapshotDefinition snapshotDefinition = Json.read(request.getBodyAsString(), SnapshotDefinition.class);
-        return execute(admin, snapshotDefinition);
+        final SnapshotSpec snapshotSpec = Json.read(request.getBodyAsString(), SnapshotSpec.class);
+        return execute(admin, snapshotSpec);
     }
 
     /**
      * Central method, mainly glue code
      *
      * @param admin Admin instance
-     * @param snapshotDefinition User input parameters/options
+     * @param snapshotSpec User input parameters/options
      * @return ResponseDefinition
      */
-    private ResponseDefinition execute(Admin admin, SnapshotDefinition snapshotDefinition) {
+    private ResponseDefinition execute(Admin admin, SnapshotSpec snapshotSpec) {
         final FluentIterable<StubMapping> stubMappings = generateStubMappings(
             admin.getServeEvents().getServeEvents(),
-            snapshotDefinition
+            snapshotSpec
         );
 
         ArrayList<Object> response = new ArrayList<>(stubMappings.size());
-        String format = snapshotDefinition.getOutputFormat();
+        String format = snapshotSpec.getOutputFormat();
 
         for (StubMapping stubMapping : stubMappings) {
             if (!admin.getStubMapping(stubMapping.getId()).isPresent()) { // check for duplicates
@@ -52,24 +52,24 @@ public class SnapshotTask implements AdminTask {
     }
 
     /**
-     * Transforms a list of ServeEvents to StubMappings according to the options in SnapshotDefinition
+     * Transforms a list of ServeEvents to StubMappings according to the options in SnapshotSpec
      * @param serveEventList List of ServeEvents from the request journal
-     * @param snapshotDefinition User input parameters/options
+     * @param snapshotSpec User input parameters/options
      * @return List of StubMappings
      */
-    private FluentIterable<StubMapping> generateStubMappings(Iterable<ServeEvent> serveEventList, SnapshotDefinition snapshotDefinition) {
+    private FluentIterable<StubMapping> generateStubMappings(Iterable<ServeEvent> serveEventList, SnapshotSpec snapshotSpec) {
         FluentIterable<ServeEvent> serveEvents = from(serveEventList).filter(onlyProxied());
 
-        if (snapshotDefinition.getFilters() != null) {
-            serveEvents = serveEvents.filter(snapshotDefinition.getFilters());
+        if (snapshotSpec.getFilters() != null) {
+            serveEvents = serveEvents.filter(snapshotSpec.getFilters());
         }
 
         FluentIterable<StubMapping> stubMappings = serveEvents.transform(
-            new SnapshotStubMappingTransformer(snapshotDefinition.getCaptureFields())
+            new SnapshotStubMappingTransformer(snapshotSpec.getCaptureFields())
         );
 
-        if (snapshotDefinition.getSortFields() != null) {
-            stubMappings = from(stubMappings.toSortedSet(snapshotDefinition.getSortFields()));
+        if (snapshotSpec.getSortFields() != null) {
+            stubMappings = from(stubMappings.toSortedSet(snapshotSpec.getSortFields()));
         }
 
         return stubMappings;
