@@ -13,7 +13,7 @@ class SnapshotSpec {
     // Whitelist requests to generate StubMappings for
     private SnapshotFilters filters;
     // How to sort the StubMappings (mainly for output purposes)
-    private RequestFields sortFields;
+    private RequestFieldsComparator sortFields;
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
     private SnapshotRequestPatternTransformer captureHeaders;
     // How to format StubMappings in the response body
@@ -28,14 +28,14 @@ class SnapshotSpec {
         this.filters = filters;
         this.outputFormat = outputFormat;
         this.captureHeaders = new SnapshotRequestPatternTransformer(captureHeaders);
-        if (sortFields != null) this.sortFields = new RequestFields(sortFields);
+        if (sortFields != null) this.sortFields = new RequestFieldsComparator(sortFields);
     }
 
     public SnapshotSpec() {}
 
     public SnapshotFilters getFilters() { return filters; }
 
-    public RequestFields getSortFields() { return sortFields; }
+    public RequestFieldsComparator getSortFields() { return sortFields; }
 
     public SnapshotRequestPatternTransformer getCaptureHeaders() { return captureHeaders; }
 
