@@ -71,7 +71,7 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
 
 # Examples
 
-* Record mappings with defaults: `curl -d '{}' http://localhost:8080/__admin/snapshot`
+* Record mappings with defaults: `curl -X POST http://localhost:8080/__admin/snapshot`
 * Filter by URL and header values (i.e. only create stub mappings for matching requests) and ouput array of stub mappings:
 
         curl -d '{

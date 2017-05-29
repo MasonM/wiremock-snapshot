@@ -22,7 +22,9 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class SnapshotTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        SnapshotSpec snapshotSpec = Json.read(request.getBodyAsString(), SnapshotSpec.class);
+        SnapshotSpec snapshotSpec = request.getBody().length == 0
+            ? new SnapshotSpec()
+            : Json.read(request.getBodyAsString(), SnapshotSpec.class);
         return execute(admin, snapshotSpec);
     }
 
