@@ -19,15 +19,19 @@ class SnapshotSpec {
     // How to format StubMappings in the response body
     // Either "full" (meaning return an array of rendered StubMappings) or "ids", which returns an array of UUIDs
     private String outputFormat;
+    // Whether to persist stub mappings
+    private boolean persist = true;
 
     @JsonCreator
     public SnapshotSpec(@JsonProperty("filters") SnapshotFilters filters ,
                         @JsonProperty("sortFields") String[] sortFields,
                         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
-                        @JsonProperty("outputFormat") String outputFormat) {
+                        @JsonProperty("outputFormat") String outputFormat,
+                        @JsonProperty("persist") boolean persist) {
         this.filters = filters;
         this.outputFormat = outputFormat;
         this.captureHeaders = new SnapshotRequestPatternTransformer(captureHeaders);
+        this.persist = persist;
         if (sortFields != null) this.sortFields = new RequestFieldsComparator(sortFields);
     }
 
@@ -40,4 +44,6 @@ class SnapshotSpec {
     public SnapshotRequestPatternTransformer getCaptureHeaders() { return captureHeaders; }
 
     public String getOutputFormat() { return outputFormat; }
+
+    public boolean shouldPersist() { return persist; }
 }

@@ -56,6 +56,9 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
 * `"filters"` - Request patterns to use for determining which requests for which to create stub mappings.
   * Possible values: Identical to those accepted by `/__admin/requests/find`. See [Request Matching](http://wiremock.org/docs/request-matching/) for details.
   * Default: no filtering.
+* `"persist"` - If set to true, persist stub mappings to disk. Otherwise, just output
+  * Possible values: true, false
+  * Default: true
 * `"sortFields"` - Array of fields in the request to use for sorting stub mappings, mainly for output.
   * Possible values:  `"url"`, `"method"`, or a header name (e.g. `"Accept"`)
   * Default: no sorting.
@@ -66,12 +69,6 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
   * Possible values: `"ids"` to return array of stub mapping IDs, `"full"` to return array of stub mapping objects
   * Default: `"ids"`
 
-## Persisting the mappings
-
-Stub mappings are not persisted automatically. Call `/__admin/mappings/save` to save them:
-
-    curl -X POST http://localhost:8080/__admin/mappings/save
-    
 # Examples
 
 * Record mappings with defaults: `curl -d '{}' http://localhost:8080/__admin/snapshot`
@@ -100,9 +97,10 @@ Stub mappings are not persisted automatically. Call `/__admin/mappings/save` to 
                  }
             }
          }' http://localhost:8080/__admin/snapshot`
-* Sort stub mappings by the URL and output an array IDs.
+* Sort stub mappings by the URL and output an array IDs, without persisting.
 
          curl -d '{
+            "persist": false,
             "sortFields": [ "url" ],
             "outputFormat": "ids"
          }' http://localhost:8080/__admin/snapshot`

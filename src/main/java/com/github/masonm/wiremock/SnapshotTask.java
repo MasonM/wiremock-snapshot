@@ -1,6 +1,7 @@
 package com.github.masonm.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -21,7 +22,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class SnapshotTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        final SnapshotSpec snapshotSpec = Json.read(request.getBodyAsString(), SnapshotSpec.class);
+        SnapshotSpec snapshotSpec = Json.read(request.getBodyAsString(), SnapshotSpec.class);
         return execute(admin, snapshotSpec);
     }
 
@@ -33,19 +34,19 @@ public class SnapshotTask implements AdminTask {
      * @return ResponseDefinition
      */
     private ResponseDefinition execute(Admin admin, SnapshotSpec snapshotSpec) {
-        final FluentIterable<StubMapping> stubMappings = generateStubMappings(
-            admin.getServeEvents().getServeEvents(),
-            snapshotSpec
-        );
+        final FluentIterable<StubMapping> stubMappings =
+            generateStubMappings(admin.getServeEvents(), snapshotSpec)
+            .filter(noDupes(admin));
 
-        ArrayList<Object> response = new ArrayList<>(stubMappings.size());
-        String format = snapshotSpec.getOutputFormat();
+        final ArrayList<Object> response = new ArrayList<>(stubMappings.size());
+        final String format = snapshotSpec.getOutputFormat();
 
         for (StubMapping stubMapping : stubMappings) {
-            if (!admin.getStubMapping(stubMapping.getId()).isPresent()) { // check for duplicates
+            if (snapshotSpec.shouldPersist()) {
+                stubMapping.setPersistent(true);
                 admin.addStubMapping(stubMapping);
-                response.add((format != null && format.equals("full")) ? stubMapping : stubMapping.getId());
             }
+            response.add((format != null && format.equals("full")) ? stubMapping : stubMapping.getId());
         }
 
         return jsonResponse(response.toArray(), HTTP_OK);
@@ -53,12 +54,12 @@ public class SnapshotTask implements AdminTask {
 
     /**
      * Transforms a list of ServeEvents to StubMappings according to the options in SnapshotSpec
-     * @param serveEventList List of ServeEvents from the request journal
+     * @param serveEventResult List of ServeEvents from the request journal
      * @param snapshotSpec User input parameters/options
      * @return List of StubMappings
      */
-    private FluentIterable<StubMapping> generateStubMappings(Iterable<ServeEvent> serveEventList, SnapshotSpec snapshotSpec) {
-        FluentIterable<ServeEvent> serveEvents = from(serveEventList).filter(onlyProxied());
+    private FluentIterable<StubMapping> generateStubMappings(GetServeEventsResult serveEventResult, SnapshotSpec snapshotSpec) {
+        FluentIterable<ServeEvent> serveEvents = from(serveEventResult.getServeEvents()).filter(onlyProxied());
 
         if (snapshotSpec.getFilters() != null) {
             serveEvents = serveEvents.filter(snapshotSpec.getFilters());
@@ -73,6 +74,15 @@ public class SnapshotTask implements AdminTask {
         }
 
         return stubMappings;
+    }
+
+    private Predicate<StubMapping> noDupes(final Admin admin) {
+        return new Predicate<StubMapping>() {
+            @Override
+            public boolean apply(StubMapping stubMapping) {
+                return !admin.getStubMapping(stubMapping.getId()).isPresent();
+            }
+        };
     }
 
     private Predicate<ServeEvent> onlyProxied() {

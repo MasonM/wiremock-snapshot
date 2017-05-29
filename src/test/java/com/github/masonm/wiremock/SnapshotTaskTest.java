@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.Response.response;
@@ -39,22 +41,60 @@ public class SnapshotTaskTest {
     }
 
     @Test
+    public void persistsStubMappingWhenPersistSet() {
+        setServeEvents(
+            serveEvent(
+                mockRequest().url("/foo").method(GET),
+                response().body("body"),
+               true)
+        );
+
+        final StubMapping expectedStub = new StubMapping(
+            new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo")).build(),
+            new ResponseDefinitionBuilder().withBody("body").build()
+        );
+        expectedStub.setPersistent(true);
+        expectedStub.setId(UUID.fromString("ce2bc534-a5cc-3fc8-9d48-dccb4f342d46"));
+
+        context.checking(new Expectations() {{
+            oneOf(mockAdmin).addStubMapping(with(expectedStub));
+        }});
+
+        setReturnForGetStubMapping(null);
+
+        assertThat(
+            execute("{ \"persist\": true}"),
+            equalToJson("[\"ce2bc534-a5cc-3fc8-9d48-dccb4f342d46\"]")
+        );
+    }
+
+    @Test
+    public void shouldNotPersistWhenSetToFalse() {
+        setServeEvents(serveEvent(mockRequest(), response(), true));
+        setReturnForGetStubMapping(null);
+        assertThat(
+            executeWithoutPersist(),
+            equalToJson("[\"19652ad8-cad8-3b2d-9846-05e6a790fbfb\"]")
+        );
+    }
+
+    @Test
     public void returnsEmptyArrayWithNoServeEvents() {
         setServeEvents();
-        assertEquals("[ ]", execute("{}"));
+        assertEquals("[ ]", executeWithoutPersist());
     }
 
     @Test
     public void returnsEmptyArrayWithUnproxiedServeEvent() {
         setServeEvents(serveEvent(mockRequest(), response(), false));
-        assertEquals("[ ]", execute("{}"));
+        assertEquals("[ ]", executeWithoutPersist());
     }
 
     @Test
     public void returnsEmptyArrayForExistingStubMapping() {
         setServeEvents(serveEvent(mockRequest(), response(), true));
         setReturnForGetStubMapping(StubMapping.NOT_CONFIGURED);
-        assertEquals("[ ]", execute("{}"));
+        assertEquals("[ ]", executeWithoutPersist());
     }
 
     @Test
@@ -62,7 +102,7 @@ public class SnapshotTaskTest {
         setServeEvents(serveEvent(mockRequest(), response(), true));
         setReturnForGetStubMapping(null);
         // the UUID shouldn't change, as it's based on the hash of the request and response
-        assertThat(execute("{}"), equalToJson("[\"19652ad8-cad8-3b2d-9846-05e6a790fbfb\"]"));
+        assertThat(executeWithoutPersist(), equalToJson("[\"19652ad8-cad8-3b2d-9846-05e6a790fbfb\"]"));
     }
 
     @Test
@@ -73,7 +113,7 @@ public class SnapshotTaskTest {
         );
         setReturnForGetStubMapping(null);
         assertThat(
-            execute("{}"),
+            executeWithoutPersist(),
             equalToJson("[\"19652ad8-cad8-3b2d-9846-05e6a790fbfb\", \"257aa42c-75c2-3a8e-8688-f137d75847c7\"]")
         );
     }
@@ -81,6 +121,7 @@ public class SnapshotTaskTest {
     private static final String FILTERED_SNAPSHOT_REQUEST =
         "{                                                 \n" +
         "    \"outputFormat\": \"full\",                   \n" +
+        "    \"persist\": \"false\",                       \n" +
         "    \"filters\": {                                \n" +
         "        \"urlPattern\": \"/foo.*\",               \n" +
         "        \"headers\": {                            \n" +
@@ -136,6 +177,7 @@ public class SnapshotTaskTest {
     private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =
         "{                                  \n" +
         "    \"outputFormat\": \"full\",    \n" +
+        "    \"persist\": \"false\",        \n" +
         "    \"captureHeaders\": {          \n" +
         "        \"Accept\": {              \n" +
         "            \"anything\": true     \n" +
@@ -190,6 +232,7 @@ public class SnapshotTaskTest {
         "{                                  \n" +
         "    \"outputFormat\": \"full\",    \n" +
         "    \"sortFields\": [ \"url\" ],   \n" +
+        "    \"persist\": \"false\",        \n" +
         "    \"captureHeaders\": {          \n" +
         "        \"X-Foo\": {               \n" +
         "            \"matches\": \".ar\"   \n" +
@@ -262,10 +305,13 @@ public class SnapshotTaskTest {
         assertThat(execute(SORTED_SNAPSHOT_REQUEST), equalToJson(SORTED_SNAPSHOT_RESPONSE));
     }
 
-    private String execute(String requestBody) {
-        Request request = mockRequest().body(requestBody);
+    private String executeWithoutPersist() {
+        return execute("{ \"persist\": false }");
+    }
 
+    private String execute(String requestBody) {
         SnapshotTask snapshotTask = new SnapshotTask();
+        Request request = mockRequest().body(requestBody);
         ResponseDefinition responseDefinition = snapshotTask.execute(mockAdmin, request, PathParams.empty());
 
         assertEquals(HTTP_OK, responseDefinition.getStatus());
@@ -282,7 +328,6 @@ public class SnapshotTaskTest {
         );
         context.checking(new Expectations() {{
             allowing(mockAdmin).getServeEvents(); will(returnValue(results));
-            allowing(mockAdmin).addStubMapping(with(any(StubMapping.class)));
         }});
     }
 
