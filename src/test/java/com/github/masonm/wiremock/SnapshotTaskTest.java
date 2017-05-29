@@ -131,44 +131,58 @@ public class SnapshotTaskTest {
         assertThat(execute(FILTERED_SNAPSHOT_REQUEST), equalToJson(FILTERED_SNAPSHOT_RESPONSE));
     }
 
-    private static final String CAPTURE_FIELDS_SNAPSHOT_RESPONSE =
-            "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"id\" : \"a29b49ea-a0fc-3fa6-8367-ef3be2d9bfd9\",  \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"method\" : \"POST\",                          \n" +
-            "            \"headers\": {                                  \n" +
-            "                \"Accept\": {                               \n" +
-            "                    \"equalTo\": \"B\"                      \n" +
-            "                }                                           \n" +
-            "            }                                               \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        },                                                  \n" +
-            "        \"uuid\" : \"a29b49ea-a0fc-3fa6-8367-ef3be2d9bfd9\" \n" +
-            "    }                                                       \n" +
-            "]                                                             ";
+    private static final String REQUEST_TEMPLATE_SNAPSHOT_REQUEST =
+        "{                                  \n" +
+        "    \"outputFormat\": \"full\",    \n" +
+        "    \"requestTemplate\": {          \n" +
+        "        \"method\": \"ANY\",       \n" +
+        "        \"headers\": {             \n" +
+        "            \"Accept\": {          \n" +
+        "                \"anything\": true \n" +
+        "            },                     \n" +
+        "            \"X-NoMatch\": {       \n" +
+        "                \"equalTo\": \"!\" \n" +
+        "            }                      \n" +
+        "        }                          \n" +
+        "    }                              \n" +
+        "}                                  \n";
+
+    private static final String REQUEST_TEMPLATE_SNAPSHOT_RESPONSE =
+        "[                                                           \n" +
+        "    {                                                       \n" +
+        "        \"id\" : \"a29b49ea-a0fc-3fa6-8367-ef3be2d9bfd9\",  \n" +
+        "        \"request\" : {                                     \n" +
+        "            \"method\" : \"POST\",                          \n" +
+        "            \"headers\": {                                  \n" +
+        "                \"Accept\": {                               \n" +
+        "                    \"equalTo\": \"B\"                      \n" +
+        "                }                                           \n" +
+        "            }                                               \n" +
+        "        },                                                  \n" +
+        "        \"response\" : {                                    \n" +
+        "            \"status\" : 200                                \n" +
+        "        },                                                  \n" +
+        "        \"uuid\" : \"a29b49ea-a0fc-3fa6-8367-ef3be2d9bfd9\" \n" +
+        "    }                                                       \n" +
+        "]                                                             ";
 
     @Test
-    public void returnsStubMappingWithCaptureFields() {
+    public void returnsStubMappingWithTemplatedRequest() {
         setServeEvents(
             serveEvent(
                 mockRequest()
                     .url("/foo/bar")
                     .method(RequestMethod.POST)
-                    .header("Accept","B"),
+                    .header("Accept","B")
+                    .header("X-NoMatch","should be ignored"),
                 response(),
                 true
             )
         );
         setReturnForGetStubMapping(null);
         assertThat(
-            execute("{ " +
-                "\"outputFormat\": \"full\", " +
-                "\"captureFields\": [ \"method\", \"Accept\" ] " +
-            "}"),
-            equalToJson(CAPTURE_FIELDS_SNAPSHOT_RESPONSE)
+            execute(REQUEST_TEMPLATE_SNAPSHOT_REQUEST),
+            equalToJson(REQUEST_TEMPLATE_SNAPSHOT_RESPONSE)
         );
     }
 
@@ -176,30 +190,32 @@ public class SnapshotTaskTest {
         "{                                  \n" +
         "    \"outputFormat\": \"full\",    \n" +
         "    \"sortFields\": [ \"url\" ],   \n" +
-        "    \"captureFields\": [ \"url\" ] \n" +
+        "    \"requestTemplate\": {         \n" +
+        "        \"urlPattern\": \".*\"     \n" +
+        "    }                              \n" +
         "}                                  \n";
 
     private static final String SORTED_SNAPSHOT_RESPONSE =
-            "[                                                                \n" +
-            "    {                                                            \n" +
-            "        \"id\" : \"0bb32d87-039c-3a23-a611-11977b18f835\",       \n" +
-            "        \"request\" : { \"method\": \"ANY\", \"url\" : \"/a\" }, \n" +
-            "        \"response\" : { \"status\" : 200 },                     \n" +
-            "        \"uuid\" : \"0bb32d87-039c-3a23-a611-11977b18f835\"      \n" +
-            "    },                                                           \n" +
-            "    {                                                            \n" +
-            "        \"id\" : \"ad6afa05-dc87-3925-9578-cb8a78e2e15e\",       \n" +
-            "        \"request\" : { \"method\": \"ANY\", \"url\" : \"/b\" }, \n" +
-            "        \"response\" : { \"status\" : 200 },                     \n" +
-            "        \"uuid\" : \"ad6afa05-dc87-3925-9578-cb8a78e2e15e\"      \n" +
-            "    },                                                           \n" +
-            "    {                                                            \n" +
-            "        \"id\" : \"d17d08cf-96da-37f5-b40b-71420c7f2940\",       \n" +
-            "        \"request\" : { \"method\": \"ANY\", \"url\" : \"/z\" }, \n" +
-            "        \"response\" : { \"status\" : 200 },                     \n" +
-            "        \"uuid\" : \"d17d08cf-96da-37f5-b40b-71420c7f2940\"      \n" +
-            "    }                                                            \n" +
-            "]                                                             ";
+        "[                                                                \n" +
+        "    {                                                            \n" +
+        "        \"id\" : \"0bb32d87-039c-3a23-a611-11977b18f835\",       \n" +
+        "        \"request\" : { \"url\" : \"/a\", \"method\": \"ANY\" }, \n" +
+        "        \"response\" : { \"status\" : 200 },                     \n" +
+        "        \"uuid\" : \"0bb32d87-039c-3a23-a611-11977b18f835\"      \n" +
+        "    },                                                           \n" +
+        "    {                                                            \n" +
+        "        \"id\" : \"ad6afa05-dc87-3925-9578-cb8a78e2e15e\",       \n" +
+        "        \"request\" : { \"url\" : \"/b\", \"method\": \"ANY\" }, \n" +
+        "        \"response\" : { \"status\" : 200 },                     \n" +
+        "        \"uuid\" : \"ad6afa05-dc87-3925-9578-cb8a78e2e15e\"      \n" +
+        "    },                                                           \n" +
+        "    {                                                            \n" +
+        "        \"id\" : \"d17d08cf-96da-37f5-b40b-71420c7f2940\",       \n" +
+        "        \"request\" : { \"url\" : \"/z\", \"method\": \"ANY\" }, \n" +
+        "        \"response\" : { \"status\" : 200 },                     \n" +
+        "        \"uuid\" : \"d17d08cf-96da-37f5-b40b-71420c7f2940\"      \n" +
+        "    }                                                            \n" +
+        "]                                                             ";
 
     @Test
     public void returnsSortedStubMappings() {

@@ -53,15 +53,16 @@ Replace `http://www.example.com` with the proxy base URL and `http://localhost:8
 ## Calling the Snapshot API
 
 The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappings from the requests and responses in the request journal. It accepts the following options:
-* `"filters"` - Array of request patterns to use for determining which requests to create stub mappings for.
+* `"filters"` - Request patterns to use for determining which requests for which to create stub mappings.
   * Possible values: Identical to those accepted by `/__admin/requests/find`. See [Request Matching](http://wiremock.org/docs/request-matching/) for details.
   * Default: no filtering.
 * `"sortFields"` - Array of fields in the request to use for sorting stub mappings, mainly for output.
   * Possible values:  `"url"`, `"method"`, or a header name (e.g. `"Accept"`)
   * Default: no sorting.
-* `"captureFields"` - Array of fields in the request to include in stub mappings. Any duplicate stub mappings will be skipped.
-  * Possible values: Same as `"sortFields"`
-  * Default: `["url", "method"]`
+* `"requestTemplate"` - Changes the request matcher in the stub mapping to only contain the fields in the given request matcher object. Each field in a request is evaluated against the matcher and only included in the stub mapping if there's a match.
+  * Possible values: [Request matchers](http://wiremock.org/docs/request-matching/) for `"url"`, `"urlPath"`, `"urlPattern"`, `"urlPathPattern"`, `"method"`, and `"headers"`
+  * Default: `{ "urlPattern": ".*", "method": "ANY" }` (i.e. the `"url"` and `"method`" are always included in stub mappings)
+  * Example: `{ "urlPattern": ".*foo", "method": "GET" }` means the stub mapping will only match against the `"url"` if the request URL matches `.*foo` and `"method"` if the request is `GET`. So if the request is `GET /foo`, then the stub mapping will have `{ "url": /foo", "method": "GET" }`. If the request is `POST /bar/foo`, then the stub mapping will have `{ "request": { "url": "/bar/foo" } }`.
 * `"outputFormat"` - Determines response body.
   * Possible values: `"ids"` to return array of stub mapping IDs, `"full"` to return array of stub mapping objects
   * Default: `"ids"`
@@ -88,14 +89,25 @@ Stub mappings are not persisted automatically. Call `/__admin/mappings/save` to 
                 }
             }
         }' http://localhost:8080/__admin/snapshot`
-* Only include URL and the Content-Type header in stub mappings, and sort output by URL:
+* Only include URL in the stub mapping if it matches `"/foo"`, always include the method, always include the header `Content-Type`, and only include the header `Accept` if it's equal to "bar".
 
          curl -d '{
-            "captureFields": [ "url", "Content-Type" ],
-            "sortFields": [ "url" ]
+            "requestTemplate": {
+                "url": "/foo",
+                "method": "ANY",
+                "headers": {
+                    "Content-Type": { "anything": true },
+                    "Accept": { "equalTo": "Bar" }
+                 }
+            }
+         }' http://localhost:8080/__admin/snapshot`
+* Sort stub mappings by the URL and output an array IDs.
+
+         curl -d '{
+            "sortFields": [ "url" ],
+            "outputFormat": "ids"
          }' http://localhost:8080/__admin/snapshot`
 # Todo
 
 * [Add ability to extract response body to file](https://github.com/MasonM/wiremock-snapshot/issues/1) (will give feature-parity with "Record and Playback")
 * Intelligent de-duplication/consolidation of stub mappings
-* More field options for `captureFields` and `sortFields`?

@@ -9,6 +9,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 
 import java.util.ArrayList;
@@ -65,8 +66,8 @@ public class SnapshotTask implements AdminTask {
         }
 
         FluentIterable<StubMapping> stubMappings = serveEvents.transform(
-            new SnapshotStubMappingTransformer(snapshotSpec.getCaptureFields())
-        );
+            new SnapshotStubMappingTransformer(snapshotSpec.getRequestTemplate())
+        ).filter(Predicates.notNull());
 
         if (snapshotSpec.getSortFields() != null) {
             stubMappings = from(stubMappings.toSortedSet(snapshotSpec.getSortFields()));

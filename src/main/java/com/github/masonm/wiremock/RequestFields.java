@@ -45,22 +45,4 @@ public class RequestFields implements Comparator<StubMapping> {
         }
         return result;
     }
-
-    public RequestPatternBuilder createRequestPatternBuilderFrom(Request request) {
-        RequestPatternBuilder builder = new RequestPatternBuilder(
-            fields.contains(new RequestField("method")) ? request.getMethod() : RequestMethod.ANY,
-            fields.contains(new RequestField("url")) ? urlEqualTo(request.getUrl()) : anyUrl()
-        );
-
-        for (RequestField field : fields) {
-            if (!field.isHeader()) {
-                continue;
-            }
-            if (request.containsHeader(field.value())) {
-                builder = builder.withHeader(field.value(), equalTo(field.headerValue(request)));
-            }
-        }
-
-        return builder;
-    }
 }

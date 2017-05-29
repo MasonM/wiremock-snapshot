@@ -1,6 +1,7 @@
 package com.github.masonm.wiremock;
 
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -21,10 +22,9 @@ public class SnapshotStubMappingTransformerTest {
     public void apply() {
         final RequestPattern requestPattern = newRequestPattern().build();
         final ResponseDefinition responseDefinition = ResponseDefinition.ok();
-
-        SnapshotRequestPatternTransformer requestTransformer = new SnapshotRequestPatternTransformer() {
+        TemplatedRequestPatternTransformer requestTransformer = new TemplatedRequestPatternTransformer() {
             @Override
-            public RequestPattern apply(LoggedRequest request) {
+            public RequestPattern apply(Request request) {
                 return requestPattern;
             }
         };
@@ -38,8 +38,7 @@ public class SnapshotStubMappingTransformerTest {
 
         SnapshotStubMappingTransformer stubMappingTransformer = new SnapshotStubMappingTransformer(
             requestTransformer,
-            responseTransformer,
-            new RequestFields("foo")
+            responseTransformer
         );
 
         StubMapping expected = new StubMapping(requestPattern, responseDefinition);

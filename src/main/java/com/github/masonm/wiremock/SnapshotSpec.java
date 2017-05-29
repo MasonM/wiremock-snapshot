@@ -11,8 +11,8 @@ class SnapshotSpec {
     private SnapshotFilters filters;
     // How to sort the StubMappings (mainly for output purposes)
     private RequestFields sortFields;
-    // What fields in the request to include in the StubMapping
-    private RequestFields captureFields;
+    // Determines the fields to include in the StubMapping request
+    private TemplatedRequestPatternTransformer requestTemplate;
     // How to format StubMappings in the response body
     // Either "full" (meaning return an array of rendered StubMappings) or "ids", which returns an array of UUIDs
     private String outputFormat;
@@ -20,12 +20,12 @@ class SnapshotSpec {
     @JsonCreator
     public SnapshotSpec(@JsonProperty("filters") SnapshotFilters filters ,
                         @JsonProperty("sortFields") String[] sortFields,
-                        @JsonProperty("captureFields") String[] captureFields,
+                        @JsonProperty("requestTemplate") TemplatedRequestPatternTransformer requestTemplate,
                         @JsonProperty("outputFormat") String outputFormat) {
         this.filters = filters;
         this.outputFormat = outputFormat;
+        this.requestTemplate = requestTemplate;
         if (sortFields != null) this.sortFields = new RequestFields(sortFields);
-        if (captureFields != null) this.captureFields = new RequestFields(captureFields);
     }
 
     public SnapshotSpec() {}
@@ -34,7 +34,7 @@ class SnapshotSpec {
 
     public RequestFields getSortFields() { return sortFields; }
 
-    public RequestFields getCaptureFields() { return captureFields; }
+    public TemplatedRequestPatternTransformer getRequestTemplate() { return requestTemplate; }
 
     public String getOutputFormat() { return outputFormat; }
 }

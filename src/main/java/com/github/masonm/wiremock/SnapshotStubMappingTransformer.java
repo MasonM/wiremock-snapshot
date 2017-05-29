@@ -11,26 +11,25 @@ import com.google.common.primitives.Bytes;
 import java.util.UUID;
 
 /**
- * Transforms ServeEvents to StubMappings using SnapshotRequestPatternTransformer and SnapshotResponseDefinitionTransformer
+ * Transforms ServeEvents to StubMappings using TemplatedRequestPatternTransformer and SnapshotResponseDefinitionTransformer
  */
 public class SnapshotStubMappingTransformer implements Function<ServeEvent, StubMapping> {
-    private final SnapshotRequestPatternTransformer requestTransformer;
+    private final TemplatedRequestPatternTransformer requestTransformer;
     private final SnapshotResponseDefinitionTransformer responseTransformer;
 
     public SnapshotStubMappingTransformer(
-        SnapshotRequestPatternTransformer requestTransformer,
-        SnapshotResponseDefinitionTransformer responseTransformer,
-        RequestFields captureFields
+        TemplatedRequestPatternTransformer requestTransformer,
+        SnapshotResponseDefinitionTransformer responseTransformer
     ) {
         this.requestTransformer = requestTransformer;
         this.responseTransformer = responseTransformer;
-        if (captureFields != null) {
-            this.requestTransformer.withCaptureFields(captureFields);
-        }
     }
 
-    public SnapshotStubMappingTransformer(RequestFields captureFields) {
-        this(new SnapshotRequestPatternTransformer(), new SnapshotResponseDefinitionTransformer(), captureFields);
+    public SnapshotStubMappingTransformer(TemplatedRequestPatternTransformer requestTransformer) {
+        this(
+            requestTransformer == null ? new TemplatedRequestPatternTransformer() : requestTransformer,
+            new SnapshotResponseDefinitionTransformer()
+        );
     }
 
     @Override
