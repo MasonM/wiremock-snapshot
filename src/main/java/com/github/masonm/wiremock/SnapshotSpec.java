@@ -2,6 +2,9 @@ package com.github.masonm.wiremock;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+
+import java.util.Map;
 
 /**
  * Encapsulates options for generating and outputting StubMappings
@@ -11,8 +14,8 @@ class SnapshotSpec {
     private SnapshotFilters filters;
     // How to sort the StubMappings (mainly for output purposes)
     private RequestFields sortFields;
-    // Determines the fields to include in the StubMapping request
-    private TemplatedRequestPatternTransformer requestTemplate;
+    // Headers from the request to include in the stub mapping, if they match the corresponding matcher
+    private SnapshotRequestPatternTransformer captureHeaders;
     // How to format StubMappings in the response body
     // Either "full" (meaning return an array of rendered StubMappings) or "ids", which returns an array of UUIDs
     private String outputFormat;
@@ -20,11 +23,11 @@ class SnapshotSpec {
     @JsonCreator
     public SnapshotSpec(@JsonProperty("filters") SnapshotFilters filters ,
                         @JsonProperty("sortFields") String[] sortFields,
-                        @JsonProperty("requestTemplate") TemplatedRequestPatternTransformer requestTemplate,
+                        @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
                         @JsonProperty("outputFormat") String outputFormat) {
         this.filters = filters;
         this.outputFormat = outputFormat;
-        this.requestTemplate = requestTemplate;
+        this.captureHeaders = new SnapshotRequestPatternTransformer(captureHeaders);
         if (sortFields != null) this.sortFields = new RequestFields(sortFields);
     }
 
@@ -34,7 +37,7 @@ class SnapshotSpec {
 
     public RequestFields getSortFields() { return sortFields; }
 
-    public TemplatedRequestPatternTransformer getRequestTemplate() { return requestTemplate; }
+    public SnapshotRequestPatternTransformer getCaptureHeaders() { return captureHeaders; }
 
     public String getOutputFormat() { return outputFormat; }
 }

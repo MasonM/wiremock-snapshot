@@ -2,39 +2,15 @@ package com.github.masonm.wiremock;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.MockRequest;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.*;
 
 public class RequestFieldTest {
-    @Test
-    public void isHeaderReturnsTrueForHeader() {
-        assertTrue(aRequestField("Accept").isHeader());
-    }
-
-    @Test
-    public void isHeaderReturnsFalseForNonHeaders() {
-        assertFalse(aRequestField("url").isHeader());
-        assertFalse(aRequestField("method").isHeader());
-    }
-
-    @Test
-    public void headerValueReturnsValueForExistingHeader() {
-        MockRequest request = mockRequest().header("foo", "bar");
-        assertEquals("bar", aRequestField("foo").headerValue(request));
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void headerValueReturnsThrowsExceptionForMissingHeader() {
-        assertNull(aRequestField("foo").headerValue(mockRequest()));
-    }
-
     @Test
     public void equalsReturnsTrueForSameRequestField() {
         RequestField one = aRequestField("url");

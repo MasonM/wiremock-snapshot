@@ -11,30 +11,30 @@ import com.google.common.primitives.Bytes;
 import java.util.UUID;
 
 /**
- * Transforms ServeEvents to StubMappings using TemplatedRequestPatternTransformer and SnapshotResponseDefinitionTransformer
+ * Transforms ServeEvents to StubMappings using SnapshotRequestPatternTransformer and SnapshotResponseDefinitionTransformer
  */
 public class SnapshotStubMappingTransformer implements Function<ServeEvent, StubMapping> {
-    private final TemplatedRequestPatternTransformer requestTransformer;
+    private final SnapshotRequestPatternTransformer requestTransformer;
     private final SnapshotResponseDefinitionTransformer responseTransformer;
 
     public SnapshotStubMappingTransformer(
-        TemplatedRequestPatternTransformer requestTransformer,
+        SnapshotRequestPatternTransformer requestTransformer,
         SnapshotResponseDefinitionTransformer responseTransformer
     ) {
         this.requestTransformer = requestTransformer;
         this.responseTransformer = responseTransformer;
     }
 
-    public SnapshotStubMappingTransformer(TemplatedRequestPatternTransformer requestTransformer) {
+    public SnapshotStubMappingTransformer(SnapshotRequestPatternTransformer requestTransformer) {
         this(
-            requestTransformer == null ? new TemplatedRequestPatternTransformer() : requestTransformer,
+            requestTransformer == null ? new SnapshotRequestPatternTransformer() : requestTransformer,
             new SnapshotResponseDefinitionTransformer()
         );
     }
 
     @Override
     public StubMapping apply(ServeEvent event) {
-        RequestPattern requestPattern = requestTransformer.apply(event.getRequest());
+        RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
         ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
         // create (hopefully) unique ID for the stub mapping using JSON representation of the RequestPattern and
         // ResponseDefinition, which will be used in SnapshotTask to de-dupe StubMappings

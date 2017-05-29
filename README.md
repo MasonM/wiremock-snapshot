@@ -59,10 +59,9 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
 * `"sortFields"` - Array of fields in the request to use for sorting stub mappings, mainly for output.
   * Possible values:  `"url"`, `"method"`, or a header name (e.g. `"Accept"`)
   * Default: no sorting.
-* `"requestTemplate"` - Changes the request matcher in the stub mapping to only contain the fields in the given request matcher object. Each field in a request is evaluated against the matcher and only included in the stub mapping if there's a match.
-  * Possible values: [Request matchers](http://wiremock.org/docs/request-matching/) for `"url"`, `"urlPath"`, `"urlPattern"`, `"urlPathPattern"`, `"method"`, and `"headers"`
-  * Default: `{ "urlPattern": ".*", "method": "ANY" }` (i.e. the `"url"` and `"method`" are always included in stub mappings)
-  * Example: `{ "urlPattern": ".*foo", "method": "GET" }` means the stub mapping will only match against the `"url"` if the request URL matches `.*foo` and `"method"` if the request is `GET`. So if the request is `GET /foo`, then the stub mapping will have `{ "url": /foo", "method": "GET" }`. If the request is `POST /bar/foo`, then the stub mapping will have `{ "request": { "url": "/bar/foo" } }`.
+* `"captureHeaders"` - Header matchers for including headers in the StubMapping. The request is matched against each matcher, and the associated header is added to the stub mapping if there's a match.
+  * Possible values: [Request matchers](http://wiremock.org/docs/request-matching/) for headers.
+  * Default: none
 * `"outputFormat"` - Determines response body.
   * Possible values: `"ids"` to return array of stub mapping IDs, `"full"` to return array of stub mapping objects
   * Default: `"ids"`
@@ -89,10 +88,10 @@ Stub mappings are not persisted automatically. Call `/__admin/mappings/save` to 
                 }
             }
         }' http://localhost:8080/__admin/snapshot`
-* Only include URL in the stub mapping if it matches `"/foo"`, always include the method, always include the header `Content-Type`, and only include the header `Accept` if it's equal to "bar".
+* Always include "Content-Type" header in stub mapping, and include "Accept" header if it's equal to "bar".
 
          curl -d '{
-            "requestTemplate": {
+            "captureHeaders": {
                 "url": "/foo",
                 "method": "ANY",
                 "headers": {

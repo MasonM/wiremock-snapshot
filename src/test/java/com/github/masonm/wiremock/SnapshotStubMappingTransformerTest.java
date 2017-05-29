@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -20,12 +20,12 @@ import static org.junit.Assert.assertEquals;
 public class SnapshotStubMappingTransformerTest {
     @Test
     public void apply() {
-        final RequestPattern requestPattern = newRequestPattern().build();
+        final RequestPatternBuilder requestPatternBuilder = newRequestPattern();
         final ResponseDefinition responseDefinition = ResponseDefinition.ok();
-        TemplatedRequestPatternTransformer requestTransformer = new TemplatedRequestPatternTransformer() {
+        SnapshotRequestPatternTransformer requestTransformer = new SnapshotRequestPatternTransformer() {
             @Override
-            public RequestPattern apply(Request request) {
-                return requestPattern;
+            public RequestPatternBuilder apply(Request request) {
+                return requestPatternBuilder;
             }
         };
 
@@ -41,7 +41,7 @@ public class SnapshotStubMappingTransformerTest {
             responseTransformer
         );
 
-        StubMapping expected = new StubMapping(requestPattern, responseDefinition);
+        StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
         expected.setId(UUID.fromString("241ee4bc-98df-3069-abfc-9abe37650411"));
 
         assertEquals(expected, stubMappingTransformer.apply(new ServeEvent(

@@ -66,7 +66,7 @@ public class SnapshotTask implements AdminTask {
         }
 
         FluentIterable<StubMapping> stubMappings = serveEvents.transform(
-            new SnapshotStubMappingTransformer(snapshotSpec.getRequestTemplate())
+            new SnapshotStubMappingTransformer(snapshotSpec.getCaptureHeaders())
         ).filter(Predicates.notNull());
 
         if (snapshotSpec.getSortFields() != null) {

@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
@@ -82,7 +84,7 @@ public class SnapshotTaskTest {
         "    \"filters\": {                                \n" +
         "        \"urlPattern\": \"/foo.*\",               \n" +
         "        \"headers\": {                            \n" +
-        "            \"A\": { \"equalTo\": \"B\" }         \n"+
+        "            \"A\": { \"equalTo\": \"B\" }         \n" +
         "        }                                         \n" +
         "    }                                             \n" +
         "}                                                   ";
@@ -131,27 +133,25 @@ public class SnapshotTaskTest {
         assertThat(execute(FILTERED_SNAPSHOT_REQUEST), equalToJson(FILTERED_SNAPSHOT_RESPONSE));
     }
 
-    private static final String REQUEST_TEMPLATE_SNAPSHOT_REQUEST =
+    private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =
         "{                                  \n" +
         "    \"outputFormat\": \"full\",    \n" +
-        "    \"requestTemplate\": {          \n" +
-        "        \"method\": \"ANY\",       \n" +
-        "        \"headers\": {             \n" +
-        "            \"Accept\": {          \n" +
-        "                \"anything\": true \n" +
-        "            },                     \n" +
-        "            \"X-NoMatch\": {       \n" +
-        "                \"equalTo\": \"!\" \n" +
-        "            }                      \n" +
+        "    \"captureHeaders\": {          \n" +
+        "        \"Accept\": {              \n" +
+        "            \"anything\": true     \n" +
+        "        },                         \n" +
+        "        \"X-NoMatch\": {           \n" +
+        "            \"equalTo\": \"!\"     \n" +
         "        }                          \n" +
         "    }                              \n" +
-        "}                                  \n";
+        "}                                    ";
 
-    private static final String REQUEST_TEMPLATE_SNAPSHOT_RESPONSE =
+    private static final String CAPTURE_HEADERS_SNAPSHOT_RESPONSE =
         "[                                                           \n" +
         "    {                                                       \n" +
-        "        \"id\" : \"a29b49ea-a0fc-3fa6-8367-ef3be2d9bfd9\",  \n" +
+        "        \"id\" : \"57c8262a-0f2a-3c06-b82e-2d7b4e361cf0\",  \n" +
         "        \"request\" : {                                     \n" +
+        "            \"url\" : \"/foo/bar\",                         \n" +
         "            \"method\" : \"POST\",                          \n" +
         "            \"headers\": {                                  \n" +
         "                \"Accept\": {                               \n" +
@@ -162,17 +162,17 @@ public class SnapshotTaskTest {
         "        \"response\" : {                                    \n" +
         "            \"status\" : 200                                \n" +
         "        },                                                  \n" +
-        "        \"uuid\" : \"a29b49ea-a0fc-3fa6-8367-ef3be2d9bfd9\" \n" +
+        "        \"uuid\" : \"57c8262a-0f2a-3c06-b82e-2d7b4e361cf0\" \n" +
         "    }                                                       \n" +
         "]                                                             ";
 
     @Test
-    public void returnsStubMappingWithTemplatedRequest() {
+    public void returnsStubMappingWithCapturedHeaders() {
         setServeEvents(
             serveEvent(
                 mockRequest()
                     .url("/foo/bar")
-                    .method(RequestMethod.POST)
+                    .method(POST)
                     .header("Accept","B")
                     .header("X-NoMatch","should be ignored"),
                 response(),
@@ -181,8 +181,8 @@ public class SnapshotTaskTest {
         );
         setReturnForGetStubMapping(null);
         assertThat(
-            execute(REQUEST_TEMPLATE_SNAPSHOT_REQUEST),
-            equalToJson(REQUEST_TEMPLATE_SNAPSHOT_RESPONSE)
+            execute(CAPTURE_HEADERS_SNAPSHOT_REQUEST),
+            equalToJson(CAPTURE_HEADERS_SNAPSHOT_RESPONSE)
         );
     }
 
@@ -190,39 +190,73 @@ public class SnapshotTaskTest {
         "{                                  \n" +
         "    \"outputFormat\": \"full\",    \n" +
         "    \"sortFields\": [ \"url\" ],   \n" +
-        "    \"requestTemplate\": {         \n" +
-        "        \"urlPattern\": \".*\"     \n" +
+        "    \"captureHeaders\": {          \n" +
+        "        \"X-Foo\": {               \n" +
+        "            \"matches\": \".ar\"   \n" +
+        "        }                          \n" +
         "    }                              \n" +
-        "}                                  \n";
+        "}                                    ";
 
     private static final String SORTED_SNAPSHOT_RESPONSE =
         "[                                                                \n" +
         "    {                                                            \n" +
-        "        \"id\" : \"0bb32d87-039c-3a23-a611-11977b18f835\",       \n" +
-        "        \"request\" : { \"url\" : \"/a\", \"method\": \"ANY\" }, \n" +
-        "        \"response\" : { \"status\" : 200 },                     \n" +
-        "        \"uuid\" : \"0bb32d87-039c-3a23-a611-11977b18f835\"      \n" +
+        "        \"id\" : \"c10fff25-486c-3c1d-9f29-66579377d14e\",       \n" +
+        "        \"request\" : {                                          \n" +
+        "            \"url\" : \"/a\",                                    \n" +
+        "            \"method\" : \"POST\"                                \n" +
+        "        },                                                       \n" +
+        "        \"response\" : {                                         \n" +
+        "            \"status\" : 200                                     \n" +
+        "        },                                                       \n" +
+        "        \"uuid\" : \"c10fff25-486c-3c1d-9f29-66579377d14e\"      \n" +
         "    },                                                           \n" +
         "    {                                                            \n" +
-        "        \"id\" : \"ad6afa05-dc87-3925-9578-cb8a78e2e15e\",       \n" +
-        "        \"request\" : { \"url\" : \"/b\", \"method\": \"ANY\" }, \n" +
-        "        \"response\" : { \"status\" : 200 },                     \n" +
-        "        \"uuid\" : \"ad6afa05-dc87-3925-9578-cb8a78e2e15e\"      \n" +
+        "        \"id\" : \"40bd9ca3-18c9-3723-b3b9-bf0cdc214e51\",       \n" +
+        "        \"request\" : {                                          \n" +
+        "            \"url\" : \"/b\",                                    \n" +
+        "            \"method\" : \"GET\",                                \n" +
+        "            \"headers\" : {                                      \n" +
+        "                \"X-Foo\" : {                                    \n" +
+        "                    \"equalTo\" : \"bar\"                        \n" +
+        "                }                                                \n" +
+        "            }                                                    \n" +
+        "        },                                                       \n" +
+        "        \"response\" : {                                         \n" +
+        "            \"status\" : 200                                     \n" +
+        "        },                                                       \n" +
+        "        \"uuid\" : \"40bd9ca3-18c9-3723-b3b9-bf0cdc214e51\"      \n" +
         "    },                                                           \n" +
         "    {                                                            \n" +
-        "        \"id\" : \"d17d08cf-96da-37f5-b40b-71420c7f2940\",       \n" +
-        "        \"request\" : { \"url\" : \"/z\", \"method\": \"ANY\" }, \n" +
-        "        \"response\" : { \"status\" : 200 },                     \n" +
-        "        \"uuid\" : \"d17d08cf-96da-37f5-b40b-71420c7f2940\"      \n" +
+        "        \"id\" : \"dc234a23-a4c5-31dc-96f1-6913f6e8527a\",       \n" +
+        "        \"request\" : {                                          \n" +
+        "            \"url\" : \"/z\",                                    \n" +
+        "            \"method\" : \"GET\"                                 \n" +
+        "        },                                                       \n" +
+        "        \"response\" : {                                         \n" +
+        "            \"status\" : 200                                     \n" +
+        "        },                                                       \n" +
+        "        \"uuid\" : \"dc234a23-a4c5-31dc-96f1-6913f6e8527a\"      \n" +
         "    }                                                            \n" +
-        "]                                                             ";
+        "]                                                                  ";
 
     @Test
     public void returnsSortedStubMappings() {
         setServeEvents(
-            serveEvent(mockRequest().url("/b"), response(), true ),
-            serveEvent(mockRequest().url("/a"), response(), true ),
-            serveEvent(mockRequest().url("/z"), response(), true )
+            serveEvent(
+                mockRequest().method(GET).url("/b").header("X-Foo", "bar"),
+                response(),
+                true
+            ),
+            serveEvent(
+                mockRequest().method(POST).url("/a").header("X-Foo", "no match"),
+                response(),
+                true
+            ),
+            serveEvent(
+                mockRequest().method(GET).url("/z"),
+                response(),
+                true
+            )
         );
         setReturnForGetStubMapping(null);
         assertThat(execute(SORTED_SNAPSHOT_REQUEST), equalToJson(SORTED_SNAPSHOT_RESPONSE));
