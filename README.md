@@ -17,13 +17,13 @@ These will be placed in `build/libs/`.
 
 Standalone server:
 ```sh
-java -jar build/libs/wiremock-snapshot-standalone-0.1a.jar
+java -jar build/libs/wiremock-snapshot-standalone-0.2a.jar
 ```
 
 With WireMock standalone JAR:
 ```sh
 java \
-        -cp wiremock-standalone.jar:build/libs/wiremock-snapshot-0.1a.jar \
+        -cp wiremock-standalone.jar:build/libs/wiremock-snapshot-0.2a.jar \
         com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
         --extensions="com.github.masonm.wiremock.SnapshotExtension"
 ```

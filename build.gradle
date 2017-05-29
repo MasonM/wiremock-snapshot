@@ -3,7 +3,7 @@ apply plugin: 'idea'
 
 sourceCompatibility = 1.7
 group = 'com.github.masonm.wiremock'
-version = '0.1a'
+version = '0.2a'
 
 repositories {
     mavenCentral()
