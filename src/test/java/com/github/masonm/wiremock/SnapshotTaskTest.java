@@ -46,7 +46,8 @@ public class SnapshotTaskTest {
             serveEvent(
                 mockRequest().url("/foo").method(GET),
                 response().body("body"),
-               true)
+               true
+            )
         );
 
         final StubMapping expectedStub = new StubMapping(
@@ -101,7 +102,7 @@ public class SnapshotTaskTest {
     public void returnsOneMappingWithOneServeEvent() {
         setServeEvents(serveEvent(mockRequest(), response(), true));
         setReturnForGetStubMapping(null);
-        // the UUID shouldn't change, as it's based on the hash of the request and response
+        // the UUID shouldn't change, as it's based on the hash of the request
         assertThat(executeWithoutPersist(), equalToJson("[\"82df0a3e-c3a2-30c1-bd97-098668b3e5f4\"]"));
     }
 
