@@ -54,7 +54,7 @@ public class SnapshotTaskTest {
             new ResponseDefinitionBuilder().withBody("body").build()
         );
         expectedStub.setPersistent(true);
-        expectedStub.setId(UUID.fromString("ce2bc534-a5cc-3fc8-9d48-dccb4f342d46"));
+        expectedStub.setId(UUID.fromString("79caf251-ad1f-3d1b-b7c7-a0dfab33d19d"));
 
         context.checking(new Expectations() {{
             oneOf(mockAdmin).addStubMapping(with(expectedStub));
@@ -64,7 +64,7 @@ public class SnapshotTaskTest {
 
         assertThat(
             execute("{ \"persist\": true}"),
-            equalToJson("[\"ce2bc534-a5cc-3fc8-9d48-dccb4f342d46\"]")
+            equalToJson("[\"79caf251-ad1f-3d1b-b7c7-a0dfab33d19d\"]")
         );
     }
 
@@ -74,7 +74,7 @@ public class SnapshotTaskTest {
         setReturnForGetStubMapping(null);
         assertThat(
             executeWithoutPersist(),
-            equalToJson("[\"19652ad8-cad8-3b2d-9846-05e6a790fbfb\"]")
+            equalToJson("[\"82df0a3e-c3a2-30c1-bd97-098668b3e5f4\"]")
         );
     }
 
@@ -102,7 +102,7 @@ public class SnapshotTaskTest {
         setServeEvents(serveEvent(mockRequest(), response(), true));
         setReturnForGetStubMapping(null);
         // the UUID shouldn't change, as it's based on the hash of the request and response
-        assertThat(executeWithoutPersist(), equalToJson("[\"19652ad8-cad8-3b2d-9846-05e6a790fbfb\"]"));
+        assertThat(executeWithoutPersist(), equalToJson("[\"82df0a3e-c3a2-30c1-bd97-098668b3e5f4\"]"));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class SnapshotTaskTest {
         setReturnForGetStubMapping(null);
         assertThat(
             executeWithoutPersist(),
-            equalToJson("[\"19652ad8-cad8-3b2d-9846-05e6a790fbfb\", \"257aa42c-75c2-3a8e-8688-f137d75847c7\"]")
+            equalToJson("[ \"82df0a3e-c3a2-30c1-bd97-098668b3e5f4\", \"4901a9f4-43ba-31f9-9e16-4a8eeba4ef6a\" ]")
         );
     }
 
@@ -133,7 +133,7 @@ public class SnapshotTaskTest {
     private static final String FILTERED_SNAPSHOT_RESPONSE =
         "[                                                           \n" +
         "    {                                                       \n" +
-        "        \"id\" : \"dad048a8-d4ce-3302-bdef-ff2f4c4620ce\",  \n" +
+        "        \"id\" : \"e88ab645-69d5-34d1-8e4a-382ad56be0e4\",  \n" +
         "        \"request\" : {                                     \n" +
         "            \"url\" : \"/foo/bar\",                         \n" +
         "            \"method\" : \"ANY\"                            \n" +
@@ -141,10 +141,10 @@ public class SnapshotTaskTest {
         "        \"response\" : {                                    \n" +
         "            \"status\" : 200                                \n" +
         "        },                                                  \n" +
-        "        \"uuid\" : \"dad048a8-d4ce-3302-bdef-ff2f4c4620ce\" \n" +
+        "        \"uuid\" : \"e88ab645-69d5-34d1-8e4a-382ad56be0e4\" \n" +
         "    },                                                      \n" +
         "    {                                                       \n" +
-        "        \"id\" : \"749570ee-baf9-39cb-a91f-6f4b66f9508a\",  \n" +
+        "        \"id\" : \"8ce282ae-cdbb-3818-8d06-9dde11913217\",  \n" +
         "        \"request\" : {                                     \n" +
         "            \"url\" : \"/foo/bar/baz\",                     \n" +
         "            \"method\" : \"ANY\"                            \n" +
@@ -152,7 +152,7 @@ public class SnapshotTaskTest {
         "        \"response\" : {                                    \n" +
         "            \"status\" : 200                                \n" +
         "        },                                                  \n" +
-        "        \"uuid\" : \"749570ee-baf9-39cb-a91f-6f4b66f9508a\" \n" +
+        "        \"uuid\" : \"8ce282ae-cdbb-3818-8d06-9dde11913217\" \n" +
         "    }                                                       \n" +
         " ]                                                            ";
 
@@ -191,7 +191,7 @@ public class SnapshotTaskTest {
     private static final String CAPTURE_HEADERS_SNAPSHOT_RESPONSE =
         "[                                                           \n" +
         "    {                                                       \n" +
-        "        \"id\" : \"57c8262a-0f2a-3c06-b82e-2d7b4e361cf0\",  \n" +
+        "        \"id\" : \"5c4d527c-bcc3-3c89-bb41-fc697a90ee9b\",  \n" +
         "        \"request\" : {                                     \n" +
         "            \"url\" : \"/foo/bar\",                         \n" +
         "            \"method\" : \"POST\",                          \n" +
@@ -204,7 +204,7 @@ public class SnapshotTaskTest {
         "        \"response\" : {                                    \n" +
         "            \"status\" : 200                                \n" +
         "        },                                                  \n" +
-        "        \"uuid\" : \"57c8262a-0f2a-3c06-b82e-2d7b4e361cf0\" \n" +
+        "        \"uuid\" : \"5c4d527c-bcc3-3c89-bb41-fc697a90ee9b\" \n" +
         "    }                                                       \n" +
         "]                                                             ";
 
@@ -243,7 +243,7 @@ public class SnapshotTaskTest {
     private static final String SORTED_SNAPSHOT_RESPONSE =
         "[                                                                \n" +
         "    {                                                            \n" +
-        "        \"id\" : \"c10fff25-486c-3c1d-9f29-66579377d14e\",       \n" +
+        "        \"id\" : \"0237fc26-8cd6-3985-af0d-83431fa128ad\",       \n" +
         "        \"request\" : {                                          \n" +
         "            \"url\" : \"/a\",                                    \n" +
         "            \"method\" : \"POST\"                                \n" +
@@ -251,10 +251,10 @@ public class SnapshotTaskTest {
         "        \"response\" : {                                         \n" +
         "            \"status\" : 200                                     \n" +
         "        },                                                       \n" +
-        "        \"uuid\" : \"c10fff25-486c-3c1d-9f29-66579377d14e\"      \n" +
+        "        \"uuid\" : \"0237fc26-8cd6-3985-af0d-83431fa128ad\"      \n" +
         "    },                                                           \n" +
         "    {                                                            \n" +
-        "        \"id\" : \"40bd9ca3-18c9-3723-b3b9-bf0cdc214e51\",       \n" +
+        "        \"id\" : \"dd876a1d-58b9-3e42-9e24-5f283ddc6175\",       \n" +
         "        \"request\" : {                                          \n" +
         "            \"url\" : \"/b\",                                    \n" +
         "            \"method\" : \"GET\",                                \n" +
@@ -267,10 +267,10 @@ public class SnapshotTaskTest {
         "        \"response\" : {                                         \n" +
         "            \"status\" : 200                                     \n" +
         "        },                                                       \n" +
-        "        \"uuid\" : \"40bd9ca3-18c9-3723-b3b9-bf0cdc214e51\"      \n" +
+        "        \"uuid\" : \"dd876a1d-58b9-3e42-9e24-5f283ddc6175\"      \n" +
         "    },                                                           \n" +
         "    {                                                            \n" +
-        "        \"id\" : \"dc234a23-a4c5-31dc-96f1-6913f6e8527a\",       \n" +
+        "        \"id\" : \"373b99eb-49dc-360f-b46b-abf9f224a904\",       \n" +
         "        \"request\" : {                                          \n" +
         "            \"url\" : \"/z\",                                    \n" +
         "            \"method\" : \"GET\"                                 \n" +
@@ -278,7 +278,7 @@ public class SnapshotTaskTest {
         "        \"response\" : {                                         \n" +
         "            \"status\" : 200                                     \n" +
         "        },                                                       \n" +
-        "        \"uuid\" : \"dc234a23-a4c5-31dc-96f1-6913f6e8527a\"      \n" +
+        "        \"uuid\" : \"373b99eb-49dc-360f-b46b-abf9f224a904\"      \n" +
         "    }                                                            \n" +
         "]                                                                  ";
 

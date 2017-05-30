@@ -36,12 +36,13 @@ public class SnapshotStubMappingTransformer implements Function<ServeEvent, Stub
     public StubMapping apply(ServeEvent event) {
         RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
         ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
-        // create (hopefully) unique ID for the stub mapping using JSON representation of the RequestPattern and
-        // ResponseDefinition, which will be used in SnapshotTask to de-dupe StubMappings
-        byte[] hashCode = Bytes.concat(Json.toByteArray(requestPattern), Json.toByteArray(responseDefinition));
-
         StubMapping stubMapping = new StubMapping(requestPattern, responseDefinition);
+
+        // create (hopefully) unique ID for the stub mapping using JSON representation of the RequestPattern,
+        // will can be used in SnapshotTask to de-dupe StubMappings
+        byte[] hashCode = Json.toByteArray(requestPattern);
         stubMapping.setId(UUID.nameUUIDFromBytes(hashCode));
+
         return stubMapping;
     }
 }

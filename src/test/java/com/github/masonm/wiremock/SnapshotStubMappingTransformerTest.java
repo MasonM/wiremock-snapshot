@@ -42,7 +42,7 @@ public class SnapshotStubMappingTransformerTest {
         );
 
         StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
-        expected.setId(UUID.fromString("241ee4bc-98df-3069-abfc-9abe37650411"));
+        expected.setId(UUID.fromString("808bdbde-19f5-3006-84e1-770c12e737b9"));
 
         assertEquals(expected, stubMappingTransformer.apply(new ServeEvent(
             null,
