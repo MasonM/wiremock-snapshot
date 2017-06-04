@@ -55,6 +55,11 @@ signing {
     sign configurations.archives
 }
 
+if (!hasProperty('ossrhUsername') || !hasProperty('ossrhPassword')) {
+    ext.ossrhUsername = ''
+    ext.ossrhPassword = ''
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
