@@ -1,6 +1,7 @@
 # Overview
 
 [![Build Status](https://travis-ci.org/MasonM/wiremock-snapshot.svg?branch=master)](https://travis-ci.org/MasonM/wiremock-snapshot)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.masonm/wiremock-snapshot/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.masonm/wiremock-snapshot)
 
 wiremock-snapshot is an admin extension for [WireMock](http://wiremock.org) that adds a new endpoint, `/__admin/snapshot`, for creating stub mappings from recorded requests. It's an alternative to the
 [Record and Playback](http://wiremock.org/docs/record-playback/) feature that doesn't require

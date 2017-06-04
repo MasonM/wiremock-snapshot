@@ -1,15 +1,29 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.7
-group = 'com.github.masonm.wiremock'
+group = 'com.github.masonm'
+archivesBaseName = 'wiremock-snapshot'
 version = '0.3a'
 
 repositories {
     mavenCentral()
 }
 
+sourceSets {
+    test {
+        java {
+            include 'com/github/tomakehurst/wiremock/testsupport/**'
+            include 'com/github/tomakehurst/wiremock/matching/MockRequest*'
+            include 'com/github/masonm/**'
+        }
+    }
+}
+
 task fatJar (type: Jar) {
+    classifier = 'standalone'
     baseName = project.name + '-standalone'
 
     manifest {
@@ -23,12 +37,64 @@ task fatJar (type: Jar) {
     with jar
 }
 
-sourceSets {
-    test {
-        java {
-            include 'com/github/tomakehurst/wiremock/testsupport/**'
-            include 'com/github/tomakehurst/wiremock/matching/MockRequest*'
-            include 'com/github/masonm/**'
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+artifacts {
+    archives javadocJar, sourcesJar, fatJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'wiremock-snapshot'
+                packaging 'jar'
+                description 'Wiremock API extension to record stub mappings'
+                url 'https://github.com/MasonM/wiremock-snapshot'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id  'masonm'
+                        name 'Mason Malone'
+                    }
+                }
+
+                scm {
+                    connection 'scm:git:git://github.com/MasonM/wiremock-snapshot.git'
+                    developerConnection 'scm:git:ssh://github.com:MasonM/wiremock-snapshot.git'
+                    url 'https://github.com/MasonM/wiremock-snapshot'
+                }
+            }
         }
     }
 }
@@ -43,7 +109,6 @@ test {
         exceptionFormat "full"
     }
 }
-
 
 dependencies {
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
