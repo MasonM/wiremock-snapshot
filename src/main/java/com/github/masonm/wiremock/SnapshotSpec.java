@@ -2,6 +2,7 @@ package com.github.masonm.wiremock;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 
 import java.util.Map;
@@ -27,11 +28,11 @@ class SnapshotSpec {
                         @JsonProperty("sortFields") String[] sortFields,
                         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
                         @JsonProperty("outputFormat") String outputFormat,
-                        @JsonProperty("persist") boolean persist) {
+                        @JsonProperty("persist") JsonNode persistNode) {
         this.filters = filters;
         this.outputFormat = outputFormat;
         this.captureHeaders = new SnapshotRequestPatternTransformer(captureHeaders);
-        this.persist = persist;
+        this.persist = persistNode.asBoolean(true);
         if (sortFields != null) this.sortFields = new RequestFieldsComparator(sortFields);
     }
 
