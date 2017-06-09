@@ -13,8 +13,6 @@ import java.util.Map;
 class SnapshotSpec {
     // Whitelist requests to generate StubMappings for
     private SnapshotFilters filters;
-    // How to sort the StubMappings (mainly for output purposes)
-    private RequestFieldsComparator sortFields;
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
     private SnapshotRequestPatternTransformer captureHeaders;
     // How to format StubMappings in the response body
@@ -25,7 +23,6 @@ class SnapshotSpec {
 
     @JsonCreator
     public SnapshotSpec(@JsonProperty("filters") SnapshotFilters filters ,
-                        @JsonProperty("sortFields") String[] sortFields,
                         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
                         @JsonProperty("outputFormat") String outputFormat,
                         @JsonProperty("persist") JsonNode persistNode) {
@@ -33,14 +30,11 @@ class SnapshotSpec {
         this.outputFormat = outputFormat;
         this.captureHeaders = new SnapshotRequestPatternTransformer(captureHeaders);
         this.persist = persistNode.asBoolean(true);
-        if (sortFields != null) this.sortFields = new RequestFieldsComparator(sortFields);
     }
 
     public SnapshotSpec() {}
 
     public SnapshotFilters getFilters() { return filters; }
-
-    public RequestFieldsComparator getSortFields() { return sortFields; }
 
     public SnapshotRequestPatternTransformer getCaptureHeaders() { return captureHeaders; }
 

@@ -60,9 +60,6 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
 * `"persist"` - If set to true, persist stub mappings to disk. Otherwise, just output
   * Possible values: true, false
   * Default: true
-* `"sortFields"` - Array of fields in the request to use for sorting stub mappings, mainly for output.
-  * Possible values:  `"url"`, `"method"`, or a header name (e.g. `"Accept"`)
-  * Default: no sorting.
 * `"captureHeaders"` - Header matchers for including headers in the StubMapping. The request is matched against each matcher, and the associated header is added to the stub mapping if there's a match.
   * Possible values: [Request matchers](http://wiremock.org/docs/request-matching/) for headers.
   * Default: none
@@ -98,11 +95,10 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
                  }
             }
          }' http://localhost:8080/__admin/snapshot`
-* Sort stub mappings by the URL and output an array IDs, without persisting.
+* Output an array IDs, without persisting.
 
          curl -d '{
             "persist": false,
-            "sortFields": [ "url" ],
             "outputFormat": "ids"
          }' http://localhost:8080/__admin/snapshot`
 # Todo

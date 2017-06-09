@@ -71,10 +71,6 @@ public class SnapshotTask implements AdminTask {
             new SnapshotStubMappingTransformer(snapshotSpec.getCaptureHeaders())
         );
 
-        if (snapshotSpec.getSortFields() != null) {
-            stubMappings = from(stubMappings.toSortedSet(snapshotSpec.getSortFields()));
-        }
-
         return stubMappings;
     }
 
