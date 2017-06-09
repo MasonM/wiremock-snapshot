@@ -65,7 +65,7 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
   * Default: none
 * `"outputFormat"` - Determines response body.
   * Possible values: `"ids"` to return array of stub mapping IDs, `"full"` to return array of stub mapping objects
-  * Default: `"ids"`
+  * Default: `"full"`
 
 # Examples
 
