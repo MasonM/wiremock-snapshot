@@ -1,14 +1,10 @@
 package com.github.masonm.wiremock;
 
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
-import com.google.common.primitives.Bytes;
-
-import java.util.UUID;
 
 /**
  * Transforms ServeEvents to StubMappings using SnapshotRequestPatternTransformer and SnapshotResponseDefinitionTransformer
@@ -36,13 +32,6 @@ public class SnapshotStubMappingTransformer implements Function<ServeEvent, Stub
     public StubMapping apply(ServeEvent event) {
         RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
         ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
-        StubMapping stubMapping = new StubMapping(requestPattern, responseDefinition);
-
-        // create (hopefully) unique ID for the stub mapping using JSON representation of the RequestPattern,
-        // will can be used in SnapshotTask to de-dupe StubMappings
-        byte[] hashCode = Json.toByteArray(requestPattern);
-        stubMapping.setId(UUID.nameUUIDFromBytes(hashCode));
-
-        return stubMapping;
+        return new StubMapping(requestPattern, responseDefinition);
     }
 }
