@@ -54,8 +54,8 @@ Replace `http://www.example.com` with the proxy base URL and `http://localhost:8
 ## Calling the Snapshot API
 
 The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappings from the requests and responses in the request journal. It accepts the following options:
-* `"filters"` - Request patterns to use for determining which requests for which to create stub mappings.
-  * Possible values: Identical to those accepted by `/__admin/requests/find`. See [Request Matching](http://wiremock.org/docs/request-matching/) for details.
+* `"filters"` - Request patterns and IDs to use for determining which requests for which to create stub mappings.
+  * Possible values: Same request patterns accepted by `/__admin/requests/find`. See [Request Matching](http://wiremock.org/docs/request-matching/) for details. Also accepts an array of IDs to match against.
   * Default: no filtering.
 * `"persist"` - If set to true, persist stub mappings to disk. Otherwise, just output
   * Possible values: true, false
@@ -70,7 +70,7 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
 # Examples
 
 * Record mappings with defaults: `curl -X POST http://localhost:8080/__admin/snapshot`
-* Filter by URL and header values (i.e. only create stub mappings for matching requests) and ouput array of stub mappings:
+* Filter by URL and header values (i.e. only create stub mappings for matching requests) and output array of stub mappings:
 
         curl -d '{
             "outputFormat": "full",
@@ -81,6 +81,18 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
                         "equalTo": "application/json"
                     }
                 }
+            }
+        }' http://localhost:8080/__admin/snapshot`
+* Filter by URL and IDs, and output array of stub mappings:
+
+        curl -d '{
+            "outputFormat": "full",
+            "filters": {
+		"ids": [
+		    "bff18359-a74e-4c3e-95f0-dab304cd3a5a",
+		    "e88ab645-69d5-34d1-8e4a-382ad56be0e4"
+		],
+                "urlPattern": "/foo"
             }
         }' http://localhost:8080/__admin/snapshot`
 * Always include "Content-Type" header in stub mapping, and include "Accept" header if it's equal to "bar".
