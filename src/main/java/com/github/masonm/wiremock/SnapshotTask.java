@@ -41,14 +41,13 @@ public class SnapshotTask implements AdminTask {
             .filter(noDupes(admin));
 
         final ArrayList<Object> response = new ArrayList<>(stubMappings.size());
-        final String format = snapshotSpec.getOutputFormat();
 
         for (StubMapping stubMapping : stubMappings) {
             if (snapshotSpec.shouldPersist()) {
                 stubMapping.setPersistent(true);
                 admin.addStubMapping(stubMapping);
             }
-            response.add((format != null && format.equals("ids")) ? stubMapping.getId() : stubMapping);
+            response.add(snapshotSpec.getOutputFormat().format(stubMapping));
         }
 
         return jsonResponse(response.toArray(), HTTP_OK);
