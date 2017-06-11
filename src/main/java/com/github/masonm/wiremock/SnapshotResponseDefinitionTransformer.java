@@ -17,7 +17,7 @@ import static com.google.common.collect.Iterables.filter;
 public class SnapshotResponseDefinitionTransformer implements Function<LoggedResponse, ResponseDefinition> {
     @Override
     public ResponseDefinition apply(LoggedResponse response) {
-        ResponseDefinitionBuilder responseDefinitionBuilder = responseDefinition()
+        final ResponseDefinitionBuilder responseDefinitionBuilder = responseDefinition()
             .withStatus(response.getStatus());
 
         if (response.getBody() != null && !response.getBody().isEmpty()) {
