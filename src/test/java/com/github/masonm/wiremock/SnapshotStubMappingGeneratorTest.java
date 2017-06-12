@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -23,7 +24,8 @@ public class SnapshotStubMappingGeneratorTest {
     @Test
     public void generateFromWithEmptyList() {
         List<StubMapping> actual = new SnapshotStubMappingGenerator(
-            requestPatternTransformer(null)
+            requestPatternTransformer(null),
+            false
         ).generateFrom(Lists.<ServeEvent>newArrayList());
 
         assertEquals(new ArrayList<>(), actual);
@@ -36,7 +38,8 @@ public class SnapshotStubMappingGeneratorTest {
 
         SnapshotStubMappingGenerator stubMappingTransformer = new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
-            responseDefinitionTransformer(responseDefinition)
+            responseDefinitionTransformer(responseDefinition),
+            false
         );
 
         List<StubMapping> actual = stubMappingTransformer.generateFrom(
@@ -50,13 +53,14 @@ public class SnapshotStubMappingGeneratorTest {
     }
 
     @Test
-    public void generateWithMultipleServeEvents() {
-        final RequestPatternBuilder requestPatternBuilder = newRequestPattern();
+    public void generateWithMultipleServeEventsAndScenarios() {
+        final RequestPatternBuilder requestPatternBuilder = newRequestPattern().withUrl("foo");
         final ResponseDefinition responseDefinition = ResponseDefinition.ok();
 
         SnapshotStubMappingGenerator stubMappingTransformer = new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
-            responseDefinitionTransformer(responseDefinition)
+            responseDefinitionTransformer(responseDefinition),
+            true
         );
 
         List<StubMapping> actual = stubMappingTransformer.generateFrom(
@@ -69,6 +73,14 @@ public class SnapshotStubMappingGeneratorTest {
             stubMapping.setId(actual.get(i).getId());
             expected.add(stubMapping);
         }
+
+        // Make sure scenario was generated properly
+        expected.get(0).setScenarioName("scenario-foo");
+        expected.get(0).setRequiredScenarioState(Scenario.STARTED);
+
+        expected.get(1).setScenarioName("scenario-foo");
+        expected.get(1).setRequiredScenarioState(Scenario.STARTED);
+        expected.get(1).setNewScenarioState("scenario-foo-2");
 
         assertEquals(expected, actual);
     }

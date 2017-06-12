@@ -66,6 +66,9 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
 * `"outputFormat"` - Determines response body.
   * Possible values: `"ids"` to return array of stub mapping IDs, `"full"` to return array of stub mapping objects
   * Default: `"full"`
+* `"repeatsAsScenarios"` - Whether to record duplicate requests as scenarios, or just ignore them.
+  * Possible values: `true` to use scenarios for duplicate requests, `false` to discard them
+  * Default: `false`
 
 # Examples
 

@@ -20,16 +20,21 @@ class SnapshotSpec {
     private SnapshotOutputFormat outputFormat;
     // Whether to persist stub mappings
     private boolean persist = true;
+    // Whether duplicate reuqests should be recorded as scenarios or just discarded
+    private boolean repeatsAsScenarios = false;
 
     @JsonCreator
     public SnapshotSpec(@JsonProperty("filters") SnapshotFilters filters ,
                         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
                         @JsonProperty("outputFormat") SnapshotOutputFormat outputFormat,
-                        @JsonProperty("persist") JsonNode persistNode) {
+                        @JsonProperty("persist") JsonNode persistNode,
+                        @JsonProperty("repeatsAsScenarios") JsonNode repeatsNode
+    ) {
         this.filters = filters;
         this.outputFormat = outputFormat;
         this.captureHeaders = new SnapshotRequestPatternTransformer(captureHeaders);
         this.persist = persistNode.asBoolean(true);
+        this.repeatsAsScenarios = repeatsNode.asBoolean(false);
     }
 
     public SnapshotSpec() {}
@@ -41,4 +46,6 @@ class SnapshotSpec {
     public SnapshotOutputFormat getOutputFormat() { return outputFormat; }
 
     public boolean shouldPersist() { return persist; }
+
+    public boolean shouldRecordRepeatsAsScenarios() { return repeatsAsScenarios; }
 }
