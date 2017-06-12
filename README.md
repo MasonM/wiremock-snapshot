@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/MasonM/wiremock-snapshot.svg?branch=master)](https://travis-ci.org/MasonM/wiremock-snapshot)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.masonm/wiremock-snapshot/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.masonm/wiremock-snapshot)
 
-wiremock-snapshot is an admin extension for [WireMock](http://wiremock.org) that adds a new endpoint, `/__admin/snapshot`, for creating stub mappings from recorded requests. It's an alternative to the
+wiremock-snapshot is an admin extension for [WireMock](http://wiremock.org) that adds a new endpoint, `/__admin/recordings/snapshot`, for creating stub mappings from recorded requests. It's an alternative to the
 [Record and Playback](http://wiremock.org/docs/record-playback/) feature that doesn't require
 restarting the server, and provides more customization options.
 
@@ -53,7 +53,7 @@ Replace `http://www.example.com` with the proxy base URL and `http://localhost:8
 
 ## Calling the Snapshot API
 
-The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappings from the requests and responses in the request journal. It accepts the following options:
+The `/__admin/recordings/snapshot` endpoint can be accessed via POST and creates stub mappings from the requests and responses in the request journal. It accepts the following options:
 * `"filters"` - Request patterns and IDs to use for determining which requests for which to create stub mappings.
   * Possible values: Same request patterns accepted by `/__admin/requests/find`. See [Request Matching](http://wiremock.org/docs/request-matching/) for details. Also accepts an array of IDs to match against.
   * Default: no filtering.
@@ -72,7 +72,7 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
 
 # Examples
 
-* Record mappings with defaults: `curl -X POST http://localhost:8080/__admin/snapshot`
+* Record mappings with defaults: `curl -X POST http://localhost:8080/__admin/recordings/snapshot`
 * Filter by URL and header values (i.e. only create stub mappings for matching requests) and output array of stub mappings:
 
         curl -d '{
@@ -85,7 +85,7 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
                     }
                 }
             }
-        }' http://localhost:8080/__admin/snapshot`
+        }' http://localhost:8080/__admin/recordings/snapshot`
 * Filter by URL and IDs, and output array of stub mappings:
 
         curl -d '{
@@ -97,7 +97,7 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
 		],
                 "urlPattern": "/foo"
             }
-        }' http://localhost:8080/__admin/snapshot`
+        }' http://localhost:8080/__admin/recordings/snapshot`
 * Always include "Content-Type" header in stub mapping, and include "Accept" header if it's equal to "bar".
 
          curl -d '{
@@ -109,13 +109,13 @@ The `/__admin/snapshot` endpoint can be accessed via POST and creates stub mappi
                     "Accept": { "equalTo": "Bar" }
                  }
             }
-         }' http://localhost:8080/__admin/snapshot`
+         }' http://localhost:8080/__admin/recordings/snapshot`
 * Output an array IDs, without persisting.
 
          curl -d '{
             "persist": false,
             "outputFormat": "ids"
-         }' http://localhost:8080/__admin/snapshot`
+         }' http://localhost:8080/__admin/recordings/snapshot`
 # Todo
 
 * [Add ability to extract response body to file](https://github.com/MasonM/wiremock-snapshot/issues/1) (will give feature-parity with "Record and Playback")

@@ -20,5 +20,5 @@ curl -s http://localhost:8080/LICENSE > /dev/null
 curl -s http://localhost:8080/README.md > /dev/null
 
 echo "Calling snapshot API. Should return two stub mappings:"
-#curl -s -X POST http://localhost:8080/__admin/snapshot | jq
-curl -s -d '{ "outputFormat": "full" }' http://localhost:8080/__admin/snapshot | jq
+#curl -s -X POST http://localhost:8080/__admin/recordings/snapshot | jq
+curl -s -d '{ "outputFormat": "full" }' http://localhost:8080/__admin/recordings/snapshot | jq

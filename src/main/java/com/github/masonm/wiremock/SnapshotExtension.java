@@ -19,7 +19,7 @@ public class SnapshotExtension implements AdminApiExtension {
 
     @Override
     public void contributeAdminApiRoutes(Router router) {
-        router.add(POST, "/snapshot", SnapshotTask.class);
+        router.add(POST, "/recordings/snapshot", SnapshotTask.class);
     }
 
     // For standalone mode. When WireMock is run in standalone mode, WireMockServerRunner.run() is the entry point,
