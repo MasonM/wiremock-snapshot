@@ -25,7 +25,7 @@ public class SnapshotFiltersTest {
     }
 
     @Test
-    public void applyWitMethodPattern() {
+    public void applyWithMethodPattern() {
         SnapshotFilters filters = new SnapshotFilters(newRequestPattern(GET, anyUrl()).build(), null);
         MockRequest request = mockRequest().method(GET).url("/foo");
 
