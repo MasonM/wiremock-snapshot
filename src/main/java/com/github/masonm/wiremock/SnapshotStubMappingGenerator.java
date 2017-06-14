@@ -4,10 +4,8 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -17,16 +15,18 @@ public class SnapshotStubMappingGenerator {
     private final SnapshotRequestPatternTransformer requestTransformer;
     private final SnapshotResponseDefinitionTransformer responseTransformer;
     private final boolean shouldRecordRepeatsAsScenarios;
-    private HashMap<RequestPattern, SnapshotStubMappingScenarioHandler> requestScenarioHandlerMap;
+    private final SnapshotStubMappingScenarioHandler stubMappingScenarioHandler;
 
     public SnapshotStubMappingGenerator(
         SnapshotRequestPatternTransformer requestTransformer,
         SnapshotResponseDefinitionTransformer responseTransformer,
-        boolean shouldRecordRepeatsAsScenarios
+        boolean shouldRecordRepeatsAsScenarios,
+        SnapshotStubMappingScenarioHandler stubMappingScenarioHandler
     ) {
         this.requestTransformer = requestTransformer;
         this.responseTransformer = responseTransformer;
         this.shouldRecordRepeatsAsScenarios = shouldRecordRepeatsAsScenarios;
+        this.stubMappingScenarioHandler = stubMappingScenarioHandler;
     }
 
     public SnapshotStubMappingGenerator(
@@ -36,12 +36,13 @@ public class SnapshotStubMappingGenerator {
         this(
             requestTransformer == null ? new SnapshotRequestPatternTransformer() : requestTransformer,
             new SnapshotResponseDefinitionTransformer(),
-            shouldRecordRepeatsAsScenarios
+            shouldRecordRepeatsAsScenarios,
+            new SnapshotStubMappingScenarioHandler()
         );
     }
 
     public List<StubMapping> generateFrom(Iterable<ServeEvent> events) {
-        this.requestScenarioHandlerMap = new HashMap<>(Iterables.size(events));
+        this.stubMappingScenarioHandler.reset();
 
         final ArrayList<StubMapping> stubMappings = new ArrayList<>();
         for (ServeEvent event : events) {
@@ -57,11 +58,7 @@ public class SnapshotStubMappingGenerator {
         final StubMapping stubMapping = new StubMapping(requestPattern, responseDefinition);
 
         if (shouldRecordRepeatsAsScenarios) {
-            if (requestScenarioHandlerMap.containsKey(stubMapping.getRequest())) {
-                requestScenarioHandlerMap.get(stubMapping.getRequest()).trackStubMapping(stubMapping);
-            } else {
-                requestScenarioHandlerMap.put(stubMapping.getRequest(), new SnapshotStubMappingScenarioHandler(stubMapping));
-            }
+            this.stubMappingScenarioHandler.trackStubMapping(stubMapping);
         }
 
         return stubMapping;

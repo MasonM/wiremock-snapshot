@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -39,7 +38,8 @@ public class SnapshotStubMappingGeneratorTest {
         SnapshotStubMappingGenerator stubMappingTransformer = new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
             responseDefinitionTransformer(responseDefinition),
-            false
+            false,
+            stubbedScenarioHandler()
         );
 
         List<StubMapping> actual = stubMappingTransformer.generateFrom(
@@ -60,7 +60,8 @@ public class SnapshotStubMappingGeneratorTest {
         SnapshotStubMappingGenerator stubMappingTransformer = new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
             responseDefinitionTransformer(responseDefinition),
-            true
+            true,
+            stubbedScenarioHandler()
         );
 
         List<StubMapping> actual = stubMappingTransformer.generateFrom(
@@ -74,15 +75,14 @@ public class SnapshotStubMappingGeneratorTest {
             expected.add(stubMapping);
         }
 
-        // Make sure scenario was generated properly
-        expected.get(0).setScenarioName("scenario-foo");
-        expected.get(0).setRequiredScenarioState(Scenario.STARTED);
-
-        expected.get(1).setScenarioName("scenario-foo");
-        expected.get(1).setRequiredScenarioState(Scenario.STARTED);
-        expected.get(1).setNewScenarioState("scenario-foo-2");
-
         assertEquals(expected, actual);
+    }
+
+    private static SnapshotStubMappingScenarioHandler stubbedScenarioHandler() {
+        return new SnapshotStubMappingScenarioHandler() {
+            @Override
+            public void trackStubMapping(StubMapping stubMapping) {}
+        };
     }
 
     private static SnapshotRequestPatternTransformer requestPatternTransformer(final RequestPatternBuilder requestPatternBuilder) {
