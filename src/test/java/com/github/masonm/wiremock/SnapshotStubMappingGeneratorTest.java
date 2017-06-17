@@ -23,8 +23,7 @@ public class SnapshotStubMappingGeneratorTest {
     @Test
     public void generateFromWithEmptyList() {
         List<StubMapping> actual = new SnapshotStubMappingGenerator(
-            requestPatternTransformer(null),
-            false
+            requestPatternTransformer(null)
         ).generateFrom(Lists.<ServeEvent>newArrayList());
 
         assertEquals(new ArrayList<>(), actual);
@@ -37,9 +36,7 @@ public class SnapshotStubMappingGeneratorTest {
 
         SnapshotStubMappingGenerator stubMappingTransformer = new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
-            responseDefinitionTransformer(responseDefinition),
-            false,
-            stubbedScenarioHandler()
+            responseDefinitionTransformer(responseDefinition)
         );
 
         List<StubMapping> actual = stubMappingTransformer.generateFrom(
@@ -53,15 +50,13 @@ public class SnapshotStubMappingGeneratorTest {
     }
 
     @Test
-    public void generateWithMultipleServeEventsAndScenarios() {
+    public void generateWithMultipleServeEvents() {
         final RequestPatternBuilder requestPatternBuilder = newRequestPattern().withUrl("foo");
         final ResponseDefinition responseDefinition = ResponseDefinition.ok();
 
         SnapshotStubMappingGenerator stubMappingTransformer = new SnapshotStubMappingGenerator(
             requestPatternTransformer(requestPatternBuilder),
-            responseDefinitionTransformer(responseDefinition),
-            true,
-            stubbedScenarioHandler()
+            responseDefinitionTransformer(responseDefinition)
         );
 
         List<StubMapping> actual = stubMappingTransformer.generateFrom(
@@ -76,13 +71,6 @@ public class SnapshotStubMappingGeneratorTest {
         }
 
         assertEquals(expected, actual);
-    }
-
-    private static SnapshotStubMappingScenarioHandler stubbedScenarioHandler() {
-        return new SnapshotStubMappingScenarioHandler() {
-            @Override
-            public void trackStubMapping(StubMapping stubMapping) {}
-        };
     }
 
     private static SnapshotRequestPatternTransformer requestPatternTransformer(final RequestPatternBuilder requestPatternBuilder) {

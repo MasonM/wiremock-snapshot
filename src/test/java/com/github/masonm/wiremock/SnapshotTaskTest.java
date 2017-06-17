@@ -6,11 +6,9 @@ import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -52,7 +50,6 @@ public class SnapshotTaskTest {
         context.checking(new Expectations() {{
             exactly(2).of(mockAdmin).addStubMapping(with(any(StubMapping.class)));
         }});
-        setReturnForCountRequestsMatching(1);
 
         // Check when explicitly set
         JsonAssertion.assertThat(execute("{ \"persist\": true, \"outputFormat\": \"ids\"}"))
@@ -70,7 +67,6 @@ public class SnapshotTaskTest {
     @Test
     public void shouldNotPersistWhenSetToFalse() {
         setServeEvents(serveEvent(mockRequest(), response(), true));
-        setReturnForCountRequestsMatching(1);
         JsonAssertion.assertThat(executeWithoutPersist())
             .hasSize(1)
             .arrayField()
@@ -90,11 +86,17 @@ public class SnapshotTaskTest {
     }
 
     @Test
-    public void returnsEmptyArrayForExistingStubMapping() {
-        setServeEvents(serveEvent(mockRequest(), response(), true));
-        setReturnForCountRequestsMatching(2);
-        assertEquals("[ ]", executeWithoutPersist());
+    public void returnsSingleStubMappingForRepeatedRequests() {
+        setServeEvents(
+            serveEvent(mockRequest().url("/foo"), response(), true),
+            serveEvent(mockRequest().url("/foo"), response(), true)
+        );
+        JsonAssertion.assertThat(executeWithoutPersist())
+            .hasSize(1)
+            .arrayField()
+            .matches("[a-z0-9\\-]{36}");
     }
+
 
     @Test
     public void returnsTwoMappingsForTwoServeEvents() {
@@ -102,7 +104,6 @@ public class SnapshotTaskTest {
             serveEvent(mockRequest(), response(), true),
             serveEvent(mockRequest().url("/foo"), response(), true)
         );
-        setReturnForCountRequestsMatching(1);
         JsonAssertion.assertThat(executeWithoutPersist())
             .hasSize(2)
             .arrayField();
@@ -131,13 +132,6 @@ public class SnapshotTaskTest {
         );
         context.checking(new Expectations() {{
             allowing(mockAdmin).getServeEvents(); will(returnValue(results));
-        }});
-    }
-
-    private void setReturnForCountRequestsMatching(final int numMatching) {
-        context.checking(new Expectations() {{
-            allowing(mockAdmin).countRequestsMatching(with(any(RequestPattern.class)));
-            will(returnValue(new VerificationResult(numMatching, false)));
         }});
     }
 
