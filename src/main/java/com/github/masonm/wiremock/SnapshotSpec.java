@@ -32,7 +32,7 @@ class SnapshotSpec {
         @JsonProperty("repeatsAsScenarios") JsonNode repeatsNode
     ) {
         this.filters = filters;
-        this.outputFormat = outputFormat;
+        this.outputFormat = outputFormat == null ? SnapshotOutputFormat.FULL : outputFormat;
         this.captureHeaders = new SnapshotRequestPatternTransformer(captureHeaders);
         this.persist = persistNode.asBoolean(true);
         this.repeatsAsScenarios = repeatsNode.asBoolean(false);

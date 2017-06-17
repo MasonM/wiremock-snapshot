@@ -46,7 +46,9 @@ public class SnapshotTask implements AdminTask {
             snapshotSpec.shouldRecordRepeatsAsScenarios()
         ).generateFrom(serveEvents);
 
-        stubMappings = from(stubMappings).filter(noDupes(admin));
+        if (!snapshotSpec.shouldRecordRepeatsAsScenarios()) {
+            stubMappings = from(stubMappings).filter(noDupes(admin));
+        }
 
         final ArrayList<Object> response = new ArrayList<>();
 
@@ -79,7 +81,7 @@ public class SnapshotTask implements AdminTask {
         return new Predicate<StubMapping>() {
             @Override
             public boolean apply(StubMapping stubMapping) {
-                return admin.countRequestsMatching(stubMapping.getRequest()).getCount() == 0;
+                return admin.countRequestsMatching(stubMapping.getRequest()).getCount() == 1;
             }
         };
     }
