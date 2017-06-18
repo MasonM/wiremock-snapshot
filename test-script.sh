@@ -5,15 +5,16 @@
 set -e
 
 REQUEST_JSON=$1
-if [[ -z $JSON ]]; then
+if [[ -z $REQUEST_JSON ]]; then
    REQUEST_JSON='{ "outputFormat": "full", "persist": false, "repeatsAsScenarios": true }'
 fi
 
 echo "Launching Wiremock and setting up proxying"
 python -m SimpleHTTPServer 1>/dev/null 2>/dev/null &
 PYTHON_PID=$!
-java -jar build/libs/wiremock-snapshot-standalone-*.jar 1>/dev/null 2>/dev/null & 
+java -jar build/libs/wiremock*standalone*.jar 1>/dev/null 2>/dev/null & 
 WIREMOCK_PID=$!
+trap "kill $PYTHON_PID $WIREMOCK_PID" exit
 
 
 echo -n "Waiting for Wiremock to start up."
@@ -43,4 +44,3 @@ curl -s http://localhost:8080/README.md > /dev/null
 echo "Calling snapshot API with '${REQUEST_JSON}'"
 curl -s -X POST -d "${REQUEST_JSON}" http://localhost:8080/__admin/recordings/snapshot | jq
 
-kill $PYTHON_PID $WIREMOCK_PID
