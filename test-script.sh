@@ -4,6 +4,8 @@
 
 set -e
 
+PROXY_BASE_URL="http://localhost:8000"
+
 REQUEST_JSON=$1
 if [[ -z $REQUEST_JSON ]]; then
    REQUEST_JSON='{ "outputFormat": "full", "persist": false, "repeatsAsScenarios": true }'
@@ -28,7 +30,7 @@ echo -e "done\nCreating proxy mapping"
 curl -s -d '{
    "request": { "urlPattern": ".*" },
    "response": {
-      "proxyBaseUrl": "http://localhost:8000"
+      "proxyBaseUrl": "'${PROXY_BASE_URL}'"
     }
 }' http://localhost:8080/__admin/mappings > /dev/null
 
