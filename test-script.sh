@@ -5,11 +5,7 @@
 set -e
 
 PROXY_BASE_URL="http://localhost:8000"
-
 REQUEST_JSON=$1
-if [[ -z $REQUEST_JSON ]]; then
-   REQUEST_JSON='{ "outputFormat": "full", "persist": false, "repeatsAsScenarios": true }'
-fi
 
 echo "Launching Wiremock and setting up proxying"
 python -m SimpleHTTPServer 1>/dev/null 2>/dev/null &
@@ -21,17 +17,17 @@ trap "kill $PYTHON_PID $WIREMOCK_PID" exit
 
 echo -n "Waiting for Wiremock to start up."
 until $(curl --output /dev/null --silent --head http://localhost:8080); do
-   echo -n '.'
-   sleep 1
+	echo -n '.'
+	sleep 1
 done
 
 
 echo -e "done\nCreating proxy mapping"
 curl -s -d '{
-   "request": { "urlPattern": ".*" },
-   "response": {
-      "proxyBaseUrl": "'${PROXY_BASE_URL}'"
-    }
+	"request": { "urlPattern": ".*" },
+	"response": {
+		"proxyBaseUrl": "'${PROXY_BASE_URL}'"
+	}
 }' http://localhost:8080/__admin/mappings > /dev/null
 
 
@@ -44,5 +40,4 @@ curl -s http://localhost:8080/README.md > /dev/null
 
 
 echo "Calling snapshot API with '${REQUEST_JSON}'"
-curl -s -X POST -d "${REQUEST_JSON}" http://localhost:8080/__admin/recordings/snapshot | jq
-
+./test-snapshot-request.sh "${REQUEST_JSON}"
