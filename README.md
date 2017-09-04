@@ -1,3 +1,6 @@
+# DEPRECATED
+An improved version of this extension [was integrated into Wiremock 2.7](https://github.com/tomakehurst/wiremock/pull/674), so it's no longer needed.
+
 # Overview
 
 [![Build Status](https://travis-ci.org/MasonM/wiremock-snapshot.svg?branch=master)](https://travis-ci.org/MasonM/wiremock-snapshot)
